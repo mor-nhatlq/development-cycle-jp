@@ -1549,7 +1549,17 @@ flowchart LR
         REVIEWER --> REPORT
     end
 
-    subgraph PHASE4["STEP 4 · 手動テスト検証"]
+    subgraph PHASE4["STEP 4 · 人間最終レビュー（開発内部）"]
+        direction TB
+        HREVIEW["👤 人間レビュアー<br>全AI成果物の監査"]
+        HCHECKLIST{{"開発成果物として妥当？<br>品質・整合性・本番リスク"}}
+        HSIGNOFF["✅ 開発側サインオフ<br>QA手動テストへ"]
+        HREVIEW --> HCHECKLIST
+        HCHECKLIST -->|承認| HSIGNOFF
+        HCHECKLIST -.->|却下| HREVIEW
+    end
+
+    subgraph PHASE5["STEP 5 · 手動テスト検証"]
         direction TB
         MT_TESTER["👤 手動テスト担当者<br>Manual Tester"]
         MT_PLAN["テスト計画 / テスト観点<br>テスト戦略（事前策定）"]
@@ -1558,16 +1568,6 @@ flowchart LR
         MT_PLAN --> MT_TESTER --> MT_VERIFY
         MT_VERIFY -->|合格| MT_REPORT
         MT_VERIFY -.->|不合格| MT_TESTER
-    end
-
-    subgraph PHASE5["STEP 5 · 人間最終レビュー"]
-        direction TB
-        HREVIEW["👤 人間レビュアー<br>全AI成果物の監査"]
-        HCHECKLIST{{"本番投入可否？<br>品質・業務適合・リスク"}}
-        HSIGNOFF["✅ 承認サインオフ<br>納品許可"]
-        HREVIEW --> HCHECKLIST
-        HCHECKLIST -->|承認| HSIGNOFF
-        HCHECKLIST -.->|却下| HREVIEW
     end
 
     subgraph PHASE6["STEP 6 · 納品・リリース"]
@@ -1580,8 +1580,8 @@ flowchart LR
 
     USER --> PHASE0 --> PHASE1 --> PHASE2 --> PHASE3 --> PHASE4 --> PHASE5 --> PHASE6
     PHASE3 -.->|指摘修正| PHASE2
-    PHASE4 -.->|不合格・修正差戻し| PHASE2
-    PHASE5 -.->|差戻し・該当フェーズ修正| PHASE2
+    PHASE4 -.->|差戻し・該当フェーズ修正| PHASE2
+    PHASE5 -.->|不合格・修正差戻し| PHASE2
     PHASE6 -.->|ドキュメント同期| PHASE1
 
     classDef userClass fill:#0c4a6e,stroke:#38bdf8,color:#e0f2fe,stroke-width:2px
@@ -1653,7 +1653,17 @@ flowchart LR
         BF_REVIEWER --> BF_REPORT
     end
 
-    subgraph BF4["STEP 4 · 手動テスト検証"]
+    subgraph BF4["STEP 4 · 人間最終レビュー（開発内部）"]
+        direction TB
+        BF_HREVIEW["👤 人間レビュアー<br>全AI成果物の監査"]
+        BF_HCHECKLIST{{"開発成果物として妥当？<br>品質・整合性・本番リスク"}}
+        BF_HSIGNOFF["✅ 開発側サインオフ<br>QA手動テストへ"]
+        BF_HREVIEW --> BF_HCHECKLIST
+        BF_HCHECKLIST -->|承認| BF_HSIGNOFF
+        BF_HCHECKLIST -.->|却下| BF_HREVIEW
+    end
+
+    subgraph BF5["STEP 5 · 手動テスト検証"]
         direction TB
         BF_MT_TESTER["👤 手動テスト担当者<br>Manual Tester"]
         BF_MT_PLAN["テスト計画 / テスト観点<br>テスト戦略（事前策定）"]
@@ -1662,16 +1672,6 @@ flowchart LR
         BF_MT_PLAN --> BF_MT_TESTER --> BF_MT_VERIFY
         BF_MT_VERIFY -->|合格| BF_MT_REPORT
         BF_MT_VERIFY -.->|不合格| BF_MT_TESTER
-    end
-
-    subgraph BF5["STEP 5 · 人間最終レビュー"]
-        direction TB
-        BF_HREVIEW["👤 人間レビュアー<br>全AI成果物の監査"]
-        BF_HCHECKLIST{{"本番投入可否？<br>品質・業務適合・リスク"}}
-        BF_HSIGNOFF["✅ 承認サインオフ<br>納品許可"]
-        BF_HREVIEW --> BF_HCHECKLIST
-        BF_HCHECKLIST -->|承認| BF_HSIGNOFF
-        BF_HCHECKLIST -.->|却下| BF_HREVIEW
     end
 
     subgraph BF6["STEP 6 · 納品・リリース"]
@@ -1684,8 +1684,8 @@ flowchart LR
 
     INPUT --> BF0 --> BF1 --> BF2 --> BF3 --> BF4 --> BF5 --> BF6
     BF3 -.->|指摘修正| BF2
-    BF4 -.->|不合格・修正差戻し| BF2
-    BF5 -.->|差戻し・該当フェーズ修正| BF2
+    BF4 -.->|差戻し・該当フェーズ修正| BF2
+    BF5 -.->|不合格・修正差戻し| BF2
     BF6 -.->|ドキュメント同期| BF1
 
     classDef inputClass fill:#0c4a6e,stroke:#38bdf8,color:#e0f2fe,stroke-width:2px
@@ -1716,8 +1716,8 @@ flowchart LR
                 <div class="legend-item"><div class="legend-dot dot-purple"></div>計画策定・ドキュメント整備</div>
                 <div class="legend-item"><div class="legend-dot dot-green"></div>TDD実装（コーディング）</div>
                 <div class="legend-item"><div class="legend-dot dot-red"></div>コードレビュー</div>
-                <div class="legend-item"><div class="legend-dot dot-blue"></div>👤 手動テスト検証</div>
-                <div class="legend-item"><div class="legend-dot dot-amber"></div>👤 人間レビュー・承認ゲート</div>
+                <div class="legend-item"><div class="legend-dot dot-amber"></div>👤 人間最終レビュー（開発内部）</div>
+                <div class="legend-item"><div class="legend-dot dot-blue"></div>👤 手動テスト検証（QA）</div>
                 <div class="legend-item"><div class="legend-dot dot-teal"></div>納品・リリース</div>
             </div>
 
@@ -1726,8 +1726,8 @@ flowchart LR
                 <div class="legend-item"><div class="legend-dot dot-purple"></div>計画策定・ドキュメント整備</div>
                 <div class="legend-item"><div class="legend-dot dot-green"></div>TDD（特性テスト + サイクル）</div>
                 <div class="legend-item"><div class="legend-dot dot-red"></div>コードレビュー + 回帰テスト</div>
-                <div class="legend-item"><div class="legend-dot dot-blue"></div>👤 手動テスト検証（回帰含む）</div>
-                <div class="legend-item"><div class="legend-dot dot-amber"></div>👤 人間レビュー・承認ゲート</div>
+                <div class="legend-item"><div class="legend-dot dot-amber"></div>👤 人間最終レビュー（開発内部）</div>
+                <div class="legend-item"><div class="legend-dot dot-blue"></div>👤 手動テスト検証（QA・回帰含む）</div>
                 <div class="legend-item"><div class="legend-dot dot-teal"></div>慎重なリリース</div>
             </div>
         </div>
@@ -1788,7 +1788,20 @@ flowchart LR
             </div>
             <div class="detail-card" data-step="4">
                 <div class="card-header">
-                    <span class="step-num step-0">04</span>
+                    <span class="step-num step-5">04</span>
+                    <h3>👤 人間最終レビュー（開発内部）</h3>
+                </div>
+                <ul>
+                    <li>開発側のレビュアー（テックリード等）がAI成果物を監査</li>
+                    <li>コード・テスト・ドキュメント・レビュー報告書の整合性確認</li>
+                    <li>承認後にQAの手動テスト工程（STEP 05）へ引き渡し</li>
+                    <li>却下 → 該当フェーズへ差戻し修正</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="5">
+                <div class="card-header">
+                    <span class="step-num step-0">05</span>
                     <h3>👤 手動テスト検証</h3>
                 </div>
                 <ul>
@@ -1796,19 +1809,6 @@ flowchart LR
                     <li>Manual Testerが実機・ステージングでE2Eシナリオを実行</li>
                     <li>受入基準・UX・例外系・実機固有挙動を確認</li>
                     <li>不合格 → TDD／該当フェーズへ差戻し修正</li>
-                </ul>
-                <div class="card-cta">詳細を確認 →</div>
-            </div>
-            <div class="detail-card" data-step="5">
-                <div class="card-header">
-                    <span class="step-num step-5">05</span>
-                    <h3>👤 人間最終レビュー</h3>
-                </div>
-                <ul>
-                    <li>全AI成果物（コード・テスト・ドキュメント・レビュー報告書）を人間が監査</li>
-                    <li>品質 + 業務適合性 + 本番リスクを検証</li>
-                    <li>デプロイ前のサインオフチェックリストゲート</li>
-                    <li>却下 → 該当フェーズへ差戻し修正</li>
                 </ul>
                 <div class="card-cta">詳細を確認 →</div>
             </div>
@@ -1882,7 +1882,20 @@ flowchart LR
             </div>
             <div class="detail-card" data-step="4" data-pipeline="brownfield">
                 <div class="card-header">
-                    <span class="step-num step-0">04</span>
+                    <span class="step-num step-5">04</span>
+                    <h3>👤 人間最終レビュー（開発内部）</h3>
+                </div>
+                <ul>
+                    <li>開発側のレビュアー（テックリード等）がAI成果物を監査</li>
+                    <li>コード・テスト・ドキュメント・レビュー報告書の整合性確認</li>
+                    <li>承認後にQAの手動テスト工程（STEP 05）へ引き渡し</li>
+                    <li>却下 → 該当フェーズへ差戻し修正</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="5" data-pipeline="brownfield">
+                <div class="card-header">
+                    <span class="step-num step-0">05</span>
                     <h3>👤 手動テスト検証</h3>
                 </div>
                 <ul>
@@ -1890,19 +1903,6 @@ flowchart LR
                     <li>Manual TesterがE2E + 既存機能の<b>回帰検証</b>を実施</li>
                     <li>移行ホットスポット（影響範囲マップ準拠）を重点確認</li>
                     <li>不合格 → TDD／該当フェーズへ差戻し修正</li>
-                </ul>
-                <div class="card-cta">詳細を確認 →</div>
-            </div>
-            <div class="detail-card" data-step="5" data-pipeline="brownfield">
-                <div class="card-header">
-                    <span class="step-num step-5">05</span>
-                    <h3>👤 人間最終レビュー</h3>
-                </div>
-                <ul>
-                    <li>全AI成果物（コード・テスト・ドキュメント・レビュー報告書）を人間が監査</li>
-                    <li>品質 + 業務適合性 + 本番リスクを検証</li>
-                    <li>デプロイ前のサインオフチェックリストゲート</li>
-                    <li>却下 → 該当フェーズへ差戻し修正</li>
                 </ul>
                 <div class="card-cta">詳細を確認 →</div>
             </div>
@@ -2380,14 +2380,20 @@ flowchart LR
                     }
                 ]
             },
-            '4': {
-                num: '04', colorClass: 'step-0', title: '👤 手動テスト検証',
-                description: '手動テスト担当者（Manual Tester）が、STEP 01計画策定で<b>事前に策定されたテスト計画・テスト観点・テスト戦略</b>に基づき、ステージング環境および実機（iOS／Android）で実装機能をエンドツーエンドで手動検証いたします。自動テストではカバーできないUX・実機固有挙動・例外シナリオを業務知見で確認し、不具合発見時はTDDフェーズへ差戻し修正となります。本ステップ合格後にSTEP 05人間最終レビューが解放されます。',
+            '5': {
+                num: '05', colorClass: 'step-0', title: '👤 手動テスト検証',
+                description: 'STEP 04開発内部レビュー承認後、手動テスト担当者（Manual Tester）が、STEP 01計画策定で<b>事前に策定されたテスト計画・テスト観点・テスト戦略</b>に基づき、ステージング環境および実機（iOS／Android）で実装機能をエンドツーエンドで手動検証いたします。自動テストではカバーできないUX・実機固有挙動・例外シナリオを業務知見で確認し、本ステップが<b>業務受入の最終ゲート</b>となります。不具合発見時はTDDフェーズへ差戻し修正、合格後にSTEP 06納品が解放されます。',
                 inputs: [
                     {
+                        type: 'review', name: 'plans/reports/human-final-review-260605.md',
+                        path: 'plans/reports/human-final-review-260605.md',
+                        desc: 'STEP 04開発内部レビューのサインオフ — Manual Tester工程開始の必須前提条件となります。',
+                        tags: [{ label: 'STEP 04より', cls: '' }, { label: '承認済み', cls: 'success' }, { label: '必須', cls: 'priority' }]
+                    },
+                    {
                         type: 'code', name: 'ステージング配備ビルド',
-                        desc: 'STEP 02 TDDで作成され、STEP 03のコードレビューを通過した本番候補ビルド — バックエンドはECSステージング、モバイルはTestFlight／内部配信トラックへ配備済み。',
-                        tags: [{ label: 'STEP 03より', cls: '' }, { label: 'ステージング', cls: '' }]
+                        desc: 'STEP 02 TDDで作成され、STEP 03のコードレビューおよびSTEP 04の開発内部レビューを通過した本番候補ビルド — バックエンドはECSステージング、モバイルはTestFlight／内部配信トラックへ配備済み。',
+                        tags: [{ label: 'STEP 03-04より', cls: '' }, { label: 'ステージング', cls: '' }]
                     },
                     {
                         type: 'doc', name: 'plans/260505-1100-vietpay-mvp/plan.md',
@@ -2430,9 +2436,9 @@ flowchart LR
                     }
                 ]
             },
-            '5': {
-                num: '05', colorClass: 'step-5', title: '👤 人間最終レビュー',
-                description: '人間レビュアー（テックリード + プロダクトオーナー）が、デプロイ承認前にSTEP 00〜04の全AI成果物 + STEP 04手動テスト結果を総合的に評価いたします。本番投入可否を判定する最終ゲートとなります — ビジネス適合性の検証、品質の妥当性確認、本番リスク評価を実施します。却下時は該当フェーズへ差戻し修正、承認時はSTEP 06納品が解放されます。',
+            '4': {
+                num: '04', colorClass: 'step-5', title: '👤 人間最終レビュー（開発内部）',
+                description: '開発側のレビュアー（テックリード + プロダクトオーナー）が、QA引き渡し前にSTEP 00〜03の全AI成果物を総合的に評価する<b>開発内部</b>のレビューゲートとなります — コード・テスト・ドキュメント・レビュー報告書の整合性、品質の妥当性、本番リスクの初期評価を実施いたします。承認時にSTEP 05手動テスト検証（QA）が解放され、却下時は該当フェーズへ差戻し修正となります。本ステップは<b>開発側のサインオフ</b>であり、最終的な業務受入はSTEP 05のManual Testerが担当いたします。',
                 inputs: [
                     {
                         type: 'review', name: 'plans/reports/code-review-260605-vietpay-mvp.md',
@@ -2451,12 +2457,6 @@ flowchart LR
                         path: 'plans/reports/performance-260605.md',
                         desc: '性能監査 — 全p95 SLA達成（送金720ms、残高12ms）。',
                         tags: [{ label: 'STEP 03より', cls: '' }]
-                    },
-                    {
-                        type: 'test', name: 'plans/reports/qa-acceptance-test.md',
-                        path: 'plans/reports/qa-acceptance-test.md',
-                        desc: '手動テスト担当者によるE2E受入テスト結果 — 69/70合格、P0／P1バグゼロ。最終サインオフの根拠資料となります。',
-                        tags: [{ label: 'STEP 04より', cls: '' }, { label: '受入合格', cls: 'success' }]
                     },
                     {
                         type: 'doc', name: 'plans/reports/business-fit-validation.md',
@@ -2491,11 +2491,6 @@ flowchart LR
                         preview: '<span class="pc"># 本番リスク評価</span>\n\n<span class="pk">[MED-01]</span> <span class="pv">想定超過のピーク負荷</span>\n  ローンチ初日のトラフィック予測困難\n  <span class="pk">対策:</span> ECSオートスケール2→20 + サーキットブレーカー\n\n<span class="pk">[MED-02]</span> <span class="pv">Sepay性能劣化</span>\n  SepaySandbox SLA 99% — 本番で悪化の可能性\n  <span class="pk">対策:</span> キューイング + リトライ + ユーザー向け劣化メッセージ\n\n<span class="pk">[MED-03]</span> <span class="pv">eKYC審査キュー</span>\n  5-8%が手動審査 — ピーク時に溢れる可能性\n  <span class="pk">対策:</span> 24時間SLA + 滞留100件超で自動アラート'
                     },
                     {
-                        type: 'review', name: 'plans/reports/qa-acceptance-test.md',
-                        desc: 'QAリードによる最終受入テスト：TestFlight + Play Store社内配信で24ユーザーストーリーをE2E実行。24/24合格、P0／P1バグゼロ。',
-                        tags: [{ label: '24/24合格', cls: 'success' }, { label: 'P0／P1ゼロ', cls: 'success' }]
-                    },
-                    {
                         type: 'doc', name: 'plans/reports/rollback-plan.md',
                         desc: 'ローンチ失敗時のロールバック手順：機能フラグキルスイッチ・CDKスタックロールバック・DBポイントインタイムリストア・ユーザー向け通知テンプレート。',
                         tags: [{ label: 'RTO 15分以内', cls: 'success' }, { label: 'ドキュメント化済', cls: '' }]
@@ -2514,25 +2509,31 @@ flowchart LR
                     {
                         type: 'review', name: 'plans/reports/human-final-review-260605.md',
                         path: 'plans/reports/human-final-review-260605.md',
-                        desc: 'テックリード + PO + QAリードによる最終サインオフ — デプロイ解放の必須条件となります。',
-                        tags: [{ label: 'STEP 05より', cls: '' }, { label: '承認済み', cls: 'success' }, { label: '必須', cls: 'priority' }]
+                        desc: '開発側のテックリード + POによる内部サインオフ — Manual Tester工程引き渡しの根拠資料。',
+                        tags: [{ label: 'STEP 04より', cls: '' }, { label: '承認済み', cls: 'success' }]
+                    },
+                    {
+                        type: 'test', name: 'plans/reports/qa-acceptance-test.md',
+                        path: 'plans/reports/qa-acceptance-test.md',
+                        desc: 'Manual TesterによるE2E受入テスト結果 — 69/70合格、P0／P1バグゼロ。<b>本番デプロイ解放の必須条件</b>となります。',
+                        tags: [{ label: 'STEP 05より', cls: '' }, { label: '受入合格', cls: 'success' }, { label: '必須', cls: 'priority' }]
                     },
                     {
                         type: 'code', name: '承認済みコードベース + テスト',
-                        desc: 'レビュー、セキュリティ、性能、手動テストの各検証を通過したコード — リリース準備完了状態です。',
-                        tags: [{ label: 'STEP 02-04より', cls: '' }]
+                        desc: 'コードレビュー・セキュリティ・性能・開発内部レビュー・手動テストの全検証を通過したコード — リリース準備完了状態です。',
+                        tags: [{ label: 'STEP 02-05より', cls: '' }]
                     },
                     {
                         type: 'doc', name: 'plans/reports/rollback-plan.md',
                         path: 'plans/reports/rollback-plan.md',
                         desc: 'ロールバック計画 — トリガー条件、手順、決裁権限を定義。SREオンコール担当者は切替前に必読となります。',
-                        tags: [{ label: 'STEP 05より', cls: '' }]
+                        tags: [{ label: 'STEP 04より', cls: '' }]
                     },
                     {
                         type: 'doc', name: 'plans/reports/go-no-go-meeting-minutes.md',
                         path: 'plans/reports/go-no-go-meeting-minutes.md',
                         desc: 'Go/No-Go会議議事録 — ローンチ枠を2026-06-05 22:00 ICTに確定。',
-                        tags: [{ label: 'STEP 05より', cls: '' }]
+                        tags: [{ label: 'STEP 04より', cls: '' }]
                     },
                     {
                         type: 'user', name: 'デプロイ用認証情報・シークレット',
