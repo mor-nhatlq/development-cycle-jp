@@ -1508,12 +1508,14 @@
 flowchart LR
     USER[ユーザー / プロダクトオーナー<br>初期アイデア提示]
 
-    subgraph PHASE0["STEP 0 · プロジェクト初期化"]
+    subgraph PHASE0["STEP 0 · プロジェクト初期化 + 人間承認ゲート"]
         direction TB
         BRAINSTORM[Brainstormエージェント<br>アイデア創出]
         DOCS_INIT[Docs Managerエージェント<br>SRS / ワイヤーフレーム / モックアップ]
         DESIGN_TOOL[Figma / GG Stitch<br>デザイン詳細化]
-        BRAINSTORM --> DOCS_INIT --> DESIGN_TOOL
+        HGATE0{{"👤 人間承認ゲート<br>PO + ステークホルダー<br>SRS・デザイン承認"}}
+        BRAINSTORM --> DOCS_INIT --> DESIGN_TOOL --> HGATE0
+        HGATE0 -.->|却下・修正| BRAINSTORM
     end
 
     subgraph PHASE1["STEP 1 · 計画策定 + 人間承認ゲート"]
@@ -1599,7 +1601,7 @@ flowchart LR
     class BRAINSTORM,DOCS_INIT,DESIGN_TOOL initClass
     class PLANNER planClass
     class RESEARCHER,DOCS docClass
-    class HGATE,HREVIEW,HCHECKLIST,HSIGNOFF,MT_TESTER,MT_VERIFY humanClass
+    class HGATE0,HGATE,HREVIEW,HCHECKLIST,HSIGNOFF,MT_TESTER,MT_VERIFY humanClass
     class MT_PLAN,MT_REPORT mtClass
     class GREEN,REFACTOR codeClass
     class RED testClass
@@ -1611,13 +1613,15 @@ flowchart LR
 flowchart LR
     INPUT["お客様提供物<br>ソースコード + ドキュメント"]
 
-    subgraph BF0["STEP 0 · ドキュメント標準化"]
+    subgraph BF0["STEP 0 · ドキュメント標準化 + 人間承認ゲート"]
         direction TB
         BF_PARSE["Doc Parserエージェント<br>顧客ドキュメント解析"]
         BF_REVERSE["リバースエンジニアリング<br>コードベース → アーキテクチャ"]
         BF_GAP["Gap Analyzer<br>As-Is と To-Be の差異分析"]
         BF_STD["標準化ドキュメント<br>SRS・ワイヤーフレーム・アーキテクチャ"]
-        BF_PARSE --> BF_REVERSE --> BF_GAP --> BF_STD
+        BF_HGATE0{{"👤 人間承認ゲート<br>テックリード + お客様SME<br>標準化ドキュメント承認"}}
+        BF_PARSE --> BF_REVERSE --> BF_GAP --> BF_STD --> BF_HGATE0
+        BF_HGATE0 -.->|却下・修正| BF_PARSE
     end
 
     subgraph BF1["STEP 1 · 計画策定 + 人間承認ゲート"]
@@ -1703,7 +1707,7 @@ flowchart LR
     class BF_PARSE,BF_REVERSE,BF_GAP,BF_STD bfStdDoc
     class BF_PLANNER bfPlan
     class BF_RESEARCH,BF_PLAN_OUT bfDoc
-    class BF_HGATE,BF_HREVIEW,BF_HCHECKLIST,BF_HSIGNOFF,BF_VRED,BF_VGREEN,BF_MT_TESTER,BF_MT_VERIFY bfHuman
+    class BF_HGATE0,BF_HGATE,BF_HREVIEW,BF_HCHECKLIST,BF_HSIGNOFF,BF_VRED,BF_VGREEN,BF_MT_TESTER,BF_MT_VERIFY bfHuman
     class BF_MT_PLAN,BF_MT_REPORT bfMt
     class BF_GREEN,BF_REFACTOR bfCode
     class BF_RED bfTest
@@ -1736,12 +1740,14 @@ flowchart LR
             <div class="detail-card" data-step="0">
                 <div class="card-header">
                     <span class="step-num step-1">00</span>
-                    <h3>プロジェクト初期化</h3>
+                    <h3>プロジェクト初期化 + 人間承認ゲート</h3>
                 </div>
                 <ul>
                     <li>Brainstormエージェントによるアイデア検討・創出</li>
                     <li>Docs ManagerによるSRS・ワイヤーフレーム・モックアップ作成</li>
                     <li>Figma / GG Stitch / Claude Designによるプロダクトデザインの詳細化</li>
+                    <li>👤 <b>人間承認ゲート</b> — PO + ステークホルダーがSRS・デザイン・スコープを承認</li>
+                    <li>却下 → ブレインストーム／ドキュメント修正ループへ差戻し</li>
                 </ul>
                 <div class="card-cta">詳細を確認 →</div>
             </div>
@@ -1830,13 +1836,15 @@ flowchart LR
             <div class="detail-card" data-step="0" data-pipeline="brownfield">
                 <div class="card-header">
                     <span class="step-num step-7">00</span>
-                    <h3>📚 ドキュメント標準化</h3>
+                    <h3>📚 ドキュメント標準化 + 人間承認ゲート</h3>
                 </div>
                 <ul>
                     <li>Doc Parserエージェントがお客様提供ドキュメントを読込・解析</li>
                     <li>リバースエンジニアリングエージェントが既存コードベースからAs-Isアーキテクチャを抽出</li>
                     <li>Gap AnalyzerがAs-IsとTo-Beを比較 → 影響範囲マップを作成</li>
                     <li>標準化ドキュメント一式（SRS・ワイヤーフレーム・アーキテクチャ）を出力 — Greenfieldと同フォーマットで統一</li>
+                    <li>👤 <b>人間承認ゲート</b> — テックリード + <b>お客様SME</b>が標準化ドキュメントの正確性・完全性を承認</li>
+                    <li>却下 → 解析・リバースエンジニアリング修正ループへ差戻し</li>
                 </ul>
                 <div class="card-cta">詳細を確認 →</div>
             </div>
@@ -2039,9 +2047,9 @@ flowchart LR
     <script>
         const STEP_DATA = {
             '0': {
-                num: '00', colorClass: 'step-1', title: 'プロジェクト初期化',
-                description: 'VietPayプロジェクトの基盤構築フェーズです。ベトナム電子ウォレット市場におけるプロダクトポジショニングのブレインストーミング、SBV（ベトナム国家銀行）規制準拠のSRS草案作成、主要フロー（オンボーディング、eKYC、P2P送金、VietQRスキャン）のワイヤーフレーム作成、続いてFigmaにてデザインシステムを完成させます。',
-                agents: ['Brainstormエージェント', 'Docs Managerエージェント', 'デザインツール (Figma)'],
+                num: '00', colorClass: 'step-1', title: 'プロジェクト初期化 + 人間承認ゲート',
+                description: 'VietPayプロジェクトの基盤構築フェーズです。ベトナム電子ウォレット市場におけるプロダクトポジショニングのブレインストーミング、SBV（ベトナム国家銀行）規制準拠のSRS草案作成、主要フロー（オンボーディング、eKYC、P2P送金、VietQRスキャン）のワイヤーフレーム作成、続いてFigmaにてデザインシステムを完成させます。**人間承認ゲート**：PO + ステークホルダーがSRS・デザイン・スコープ・KPIを承認いたします。承認後にSTEP 01計画策定が解放され、却下時はブレインストーム／ドキュメント修正ループへ差戻しとなります。',
+                agents: ['Brainstormエージェント', 'Docs Managerエージェント', 'デザインツール (Figma)', '👤 人間プロダクトオーナー', '👤 ステークホルダー'],
                 inputs: [
                     {
                         type: 'user', name: 'お客様ビジョン／プロジェクトブリーフ',
@@ -2113,6 +2121,12 @@ flowchart LR
                         desc: 'デザイントークン：VietPayブランドカラー、タイポグラフィInter + SF Pro、4pxグリッドスペーシング、半径スケール、エレベーショントークン。',
                         tags: [{ label: 'トークン', cls: '' }],
                         preview: '<span class="pc">// ブランドカラー</span>\n<span class="pk">--brand-primary</span>: <span class="pv">#00B074</span>  <span class="pc">// VietPayグリーン</span>\n<span class="pk">--brand-secondary</span>: <span class="pv">#0EA5E9</span>\n<span class="pk">--success</span>: <span class="pv">#16A34A</span>\n<span class="pk">--warning</span>: <span class="pv">#F59E0B</span>\n<span class="pk">--danger</span>: <span class="pv">#DC2626</span>\n\n<span class="pc">// タイポグラフィ</span>\n<span class="pk">--font-display</span>: <span class="pv">"SF Pro Display"</span>\n<span class="pk">--font-body</span>: <span class="pv">"Inter"</span>'
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/initialization-approval-checklist.md',
+                        desc: '👤 人間承認ゲート成果物：PO + ステークホルダーがSRS・ワイヤーフレーム・デザインシステム・スコープ・KPIを承認するチェックリスト（6セクション）。',
+                        tags: [{ label: '承認済み', cls: 'success' }, { label: '人間承認ゲート', cls: 'priority' }, { label: 'STEP 01解放', cls: 'success' }],
+                        preview: '<span class="pc"># 初期化承認チェックリスト · VietPay</span>\n\n<span class="pk">レビュアー:</span>\n  - <span class="pv">PO（プロダクトオーナー）</span>  (Linh M.)  ✓\n  - <span class="pv">ビジネスステークホルダー</span>  (Hieu N.)  ✓\n  - <span class="pv">UXリード</span>                  (Trang L.)  ✓\n\n<span class="pc">## チェック項目</span>\n  ✓ <span class="pk">[1] スコープ整合性</span>     — ターゲット・USP明確\n  ✓ <span class="pk">[2] SRS妥当性</span>           — FR12件・NFR8件レビュー済み\n  ✓ <span class="pk">[3] ワイヤーフレーム</span>     — 主要4フローを承認\n  ✓ <span class="pk">[4] デザインシステム</span>     — ブランド・トークン承認\n  ✓ <span class="pk">[5] 規制準拠範囲</span>         — SBV/AML/KYC明記\n  ✓ <span class="pk">[6] 成功KPI</span>             — 測定可能\n\n<span class="pk">判定:</span> <span class="pv">承認済み・STEP 01計画策定へ移行可</span>'
                     }
                 ]
             },
@@ -2576,9 +2590,9 @@ flowchart LR
 
         const BROWNFIELD_STEP_DATA = {
             '0': {
-                num: '00', colorClass: 'step-7', title: '📚 ドキュメント標準化',
-                description: 'Brownfield固有のエントリーステップとなります。後続パイプラインがGreenfieldと同様に進行できるよう、全ドキュメントを標準化いたします。AIがお客様提供ドキュメント（要件ブリーフ、契約書）を解析し、リバースエンジニアリングエージェントがV1コードベースからAs-Isアーキテクチャを抽出、Gap AnalyzerがAs-IsとTo-Beを比較いたします。アウトプットは標準化ドキュメント一式（SRS・アーキテクチャ・ワイヤーフレーム・ギャップ分析）— Greenfield STEP 00と同フォーマットで統一し、STEP 01計画策定が一貫した処理を行えるようにいたします。',
-                agents: ['Doc Parserエージェント', 'Repomixエージェント', 'リバースエンジニアリングエージェント', 'Gap Analyzerエージェント', 'Change Impact Mapper'],
+                num: '00', colorClass: 'step-7', title: '📚 ドキュメント標準化 + 人間承認ゲート',
+                description: 'Brownfield固有のエントリーステップとなります。後続パイプラインがGreenfieldと同様に進行できるよう、全ドキュメントを標準化いたします。AIがお客様提供ドキュメント（要件ブリーフ、契約書）を解析し、リバースエンジニアリングエージェントがV1コードベースからAs-Isアーキテクチャを抽出、Gap AnalyzerがAs-IsとTo-Beを比較いたします。アウトプットは標準化ドキュメント一式（SRS・アーキテクチャ・ワイヤーフレーム・ギャップ分析）— Greenfield STEP 00と同フォーマットで統一いたします。**人間承認ゲート**：テックリード + <b>お客様SME</b>が標準化ドキュメントの正確性・完全性を承認いたします。承認後にSTEP 01計画策定が解放され、却下時は解析・リバースエンジニアリング修正ループへ差戻しとなります。',
+                agents: ['Doc Parserエージェント', 'Repomixエージェント', 'リバースエンジニアリングエージェント', 'Gap Analyzerエージェント', 'Change Impact Mapper', '👤 人間テックリード', '👤 お客様SME'],
                 inputs: [
                     {
                         type: 'user', name: 'customer-input/v2-requirements-brief.docx',
@@ -2647,6 +2661,12 @@ flowchart LR
                         type: 'doc', name: 'docs/tech-debt-inventory.md',
                         desc: '技術的負債一覧：Godクラス14件（500 LOC超）、廃止予定の依存関係23件、クリティカルモジュール4件のテストカバレッジ0%。STEP 01のリスク管理表へのインプットとなります。',
                         tags: [{ label: 'Godクラス14件', cls: 'warn' }, { label: 'テスト0% · 4モジュール', cls: 'warn' }]
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/standardization-approval-checklist.md',
+                        desc: '👤 人間承認ゲート成果物：テックリード + <b>お客様SME</b>が、標準化されたSRS・As-Isアーキテクチャ・ギャップ分析・影響範囲マップ・技術的負債一覧の正確性・完全性を承認するチェックリスト（5セクション）。',
+                        tags: [{ label: '承認済み', cls: 'success' }, { label: '人間承認ゲート', cls: 'priority' }, { label: 'お客様SME ✓', cls: 'success' }, { label: 'STEP 01解放', cls: 'success' }],
+                        preview: '<span class="pc"># 標準化ドキュメント承認チェックリスト · VietPay V2</span>\n\n<span class="pk">レビュアー:</span>\n  - <span class="pv">テックリード</span>      (Long N.)   ✓ 承認\n  - <span class="pv">お客様SME</span>          (Khanh V.)  ✓ 承認\n  - <span class="pv">アーキテクト</span>      (Phong D.)  ✓ 承認\n\n<span class="pc">## チェック項目</span>\n  ✓ <span class="pk">[1] SRS V2 正確性</span>          — 顧客要件と一致\n  ✓ <span class="pk">[2] As-Is アーキテクチャ</span>    — V1実態を反映\n  ✓ <span class="pk">[3] ギャップ分析網羅性</span>      — 12件全て検証済\n  ✓ <span class="pk">[4] 影響範囲マップ</span>          — モジュール／DB漏れなし\n  ✓ <span class="pk">[5] 技術的負債評価</span>          — リスク優先度妥当\n\n<span class="pk">判定:</span> <span class="pv">承認済み・STEP 01計画策定へ移行可</span>'
                     }
                 ]
             },
