@@ -1,0 +1,2946 @@
+<!DOCTYPE html>
+<!-- saved from url=(0100)https://gist.githack.com/mor-nhatlq/2fc2362761dbc3ba1a5f2cc995d959cf/raw/ai-agent-workflow-demo.html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI駆動型ソフトウェア開発ライフサイクル | ITOブリッジSEワークフロー</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/atom-one-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/common.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0A0E1A;
+            --bg-card: #0F1629;
+            --bg-elevated: #151D33;
+            --border: rgba(56, 189, 248, 0.12);
+            --border-hover: rgba(56, 189, 248, 0.3);
+            --text-primary: #E2E8F0;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --accent-blue: #38BDF8;
+            --accent-cyan: #22D3EE;
+            --accent-green: #34D399;
+            --accent-purple: #A78BFA;
+            --accent-amber: #FBBF24;
+            --accent-red: #F87171;
+            --accent-teal: #2DD4BF;
+            --accent-pink: #F472B6;
+            --glow-blue: rgba(56, 189, 248, 0.15);
+            --glow-cyan: rgba(34, 211, 238, 0.1);
+            --glow-pink: rgba(244, 114, 182, 0.15);
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+            --font-sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 24px;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Subtle grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Top glow accent */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(56, 189, 248, 0.08), transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent-cyan);
+            background: rgba(34, 211, 238, 0.08);
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            border-radius: 20px;
+            padding: 6px 16px;
+            margin-bottom: 20px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .header-tag .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        h1 .highlight {
+            color: var(--accent-blue);
+            text-shadow: 0 0 30px var(--glow-blue);
+        }
+
+        .subtitle {
+            font-family: var(--font-sans);
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        /* Foundation Setup Section */
+        .foundation-section {
+            width: 100%;
+            margin-bottom: 32px;
+            background: linear-gradient(180deg, rgba(56,189,248,0.04), rgba(56,189,248,0.01));
+            border: 1px solid rgba(56,189,248,0.18);
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+        }
+        .foundation-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 24px; right: 24px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+        }
+        .foundation-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .foundation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(56,189,248,0.12);
+            border: 1px solid rgba(56,189,248,0.3);
+            border-radius: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .foundation-title {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 4px;
+            letter-spacing: -0.01em;
+        }
+        .foundation-subtitle {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+        .foundation-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+        .foundation-row-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            position: relative;
+        }
+        .foundation-row-split::before {
+            content: '↔';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 50%;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            z-index: 2;
+            pointer-events: none;
+        }
+        @media (max-width: 1100px) {
+            .foundation-row-split { grid-template-columns: 1fr; }
+            .foundation-row-split::before { display: none; }
+        }
+        .foundation-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+        .foundation-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            opacity: 0.85;
+        }
+        .foundation-card.card-tools::before { background: var(--accent-blue); }
+        .foundation-card.card-risks::before { background: var(--accent-red); }
+        .foundation-card.card-mitigation::before { background: var(--accent-green); }
+
+        .foundation-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .foundation-card-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .foundation-card.card-tools .foundation-card-num { background: rgba(56,189,248,0.15); color: var(--accent-blue); border: 1px solid rgba(56,189,248,0.3); }
+        .foundation-card.card-risks .foundation-card-num { background: rgba(248,113,113,0.15); color: var(--accent-red); border: 1px solid rgba(248,113,113,0.3); }
+        .foundation-card.card-mitigation .foundation-card-num { background: rgba(52,211,153,0.15); color: var(--accent-green); border: 1px solid rgba(52,211,153,0.3); }
+
+        .foundation-card-title {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+        .foundation-card-body {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .foundation-card-body p { margin: 0 0 10px; }
+        .foundation-card-body strong { color: var(--text-primary); }
+
+        /* Compact comparison table */
+        .foundation-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            margin: 10px 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .foundation-table th, .foundation-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-align: left;
+        }
+        .foundation-table th {
+            background: rgba(255,255,255,0.04);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .foundation-table td:first-child {
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            color: var(--text-muted);
+        }
+        .foundation-table tr:last-child td { border-bottom: 0; }
+        .foundation-table .pick {
+            color: #6ee7b7;
+            font-weight: 600;
+        }
+        .foundation-table .meh { color: #fcd34d; }
+        .foundation-table .bad { color: #fca5a5; }
+
+        .foundation-list {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0 0;
+        }
+        .foundation-list li {
+            padding: 8px 0 8px 22px;
+            position: relative;
+            font-size: 0.84rem;
+            line-height: 1.55;
+            border-bottom: 1px dashed rgba(255,255,255,0.06);
+        }
+        .foundation-list li:last-child { border-bottom: 0; }
+        .foundation-list li::before {
+            position: absolute;
+            left: 0;
+            top: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .foundation-list.list-risks li::before { content: '⚠'; color: var(--accent-red); }
+        .foundation-list.list-mitigations li::before { content: '✓'; color: var(--accent-green); }
+        .foundation-list .item-title {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .foundation-verdict {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.25);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            color: #d1fae5;
+        }
+        .foundation-verdict strong { color: #6ee7b7; }
+
+        /* Diagram container */
+        .diagram-container {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 32px 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .diagram-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            opacity: 0.5;
+        }
+
+        /* Terminal title bar */
+        .terminal-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .terminal-dot.red { background: #FF5F57; }
+        .terminal-dot.yellow { background: #FEBC2E; }
+        .terminal-dot.green { background: #28C840; }
+
+        .terminal-title {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: 12px;
+            letter-spacing: 0.03em;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 28px;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.01em;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+        }
+        .dot-pink { background: var(--accent-pink); box-shadow: 0 0 6px rgba(244, 114, 182, 0.4); }
+        .dot-blue { background: var(--accent-blue); box-shadow: 0 0 6px rgba(56, 189, 248, 0.4); }
+        .dot-cyan { background: var(--accent-cyan); box-shadow: 0 0 6px rgba(34, 211, 238, 0.4); }
+        .dot-purple { background: var(--accent-purple); box-shadow: 0 0 6px rgba(167, 139, 250, 0.4); }
+        .dot-green { background: var(--accent-green); box-shadow: 0 0 6px rgba(52, 211, 153, 0.4); }
+        .dot-amber { background: var(--accent-amber); box-shadow: 0 0 6px rgba(251, 191, 36, 0.4); }
+        .dot-red { background: var(--accent-red); box-shadow: 0 0 6px rgba(248, 113, 113, 0.4); }
+        .dot-teal { background: var(--accent-teal); box-shadow: 0 0 6px rgba(45, 212, 191, 0.4); }
+
+        /* Detail cards */
+        .details {
+            width: 100%;
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .details { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .details { grid-template-columns: 1fr; }
+            h1 { font-size: 1.6rem; }
+            .diagram-container { padding: 24px 16px 20px; }
+        }
+
+        .detail-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-cta {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(255,255,255,0.08);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+            transition: color 0.2s ease;
+        }
+
+        .detail-card:hover .card-cta { color: var(--accent-cyan); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 14, 26, 0.78);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-hover);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 720px;
+            max-height: 86vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 189, 248, 0.1);
+            transform: translateY(8px) scale(0.98);
+            transition: transform 0.2s ease;
+        }
+        .modal-overlay.active .modal { transform: translateY(0) scale(1); }
+
+        .modal-header {
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            padding: 24px 28px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 1;
+        }
+
+        .modal-header h2 {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+            flex: 1;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease, color 0.2s ease;
+            font-family: var(--font-mono);
+        }
+        .modal-close:hover { background: rgba(248, 113, 113, 0.12); color: var(--accent-red); }
+
+        .modal-body { padding: 20px 28px 28px; }
+
+        .project-banner {
+            background: linear-gradient(135deg, rgba(0,176,116,0.08), rgba(56,189,248,0.06));
+            border: 1px solid rgba(0,176,116,0.25);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+        .project-banner::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: #00B074;
+        }
+        .project-banner-tag {
+            font-family: var(--font-mono);
+            font-size: 0.66rem;
+            font-weight: 600;
+            color: #34d399;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+        .project-banner-name {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .project-banner-sub {
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+        .project-banner-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+        }
+
+        .output-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .output-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 4px;
+            padding: 2px 7px;
+            letter-spacing: 0.02em;
+        }
+        .output-tag.priority { color: #fcd34d; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
+        .output-tag.success { color: #6ee7b7; border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.08); }
+        .output-tag.warn { color: #fca5a5; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.08); }
+
+        .output-preview {
+            margin-top: 8px;
+            background: #0a0e1a;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .output-preview .pk { color: #a5b4fc; }
+        .output-preview .pv { color: #6ee7b7; }
+        .output-preview .pc { color: var(--text-muted); font-style: italic; }
+
+        .output-view-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: rgba(56,189,248,0.1);
+            border: 1px solid rgba(56,189,248,0.3);
+            border-radius: 6px;
+            color: var(--accent-cyan);
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            text-decoration: none;
+        }
+        .output-view-btn:hover { background: rgba(56,189,248,0.18); }
+
+        /* Doc viewer */
+        /* ---- Doc Viewer (reader-friendly) ---- */
+
+        /* When viewing doc: collapse modal so its transform/overflow does not constrain the fixed-position viewer */
+        .modal-overlay.viewing-doc {
+            background: transparent;
+            pointer-events: none;
+        }
+        .modal-overlay.viewing-doc .modal {
+            transform: none;
+            max-width: none;
+            max-height: none;
+            width: 0;
+            height: 0;
+            overflow: visible;
+            border: 0;
+            box-shadow: none;
+            background: transparent;
+        }
+        .modal-overlay.viewing-doc .modal > *:not(.doc-viewer) { display: none; }
+
+        /* Clickable mermaid subgraph clusters (open step modal on click) */
+        .mermaid .cluster { transition: filter 0.15s ease; }
+        .mermaid .cluster:hover { filter: brightness(1.25); }
+        .mermaid .cluster:hover .cluster-label-bkg,
+        .mermaid .cluster:hover rect { stroke-width: 2.5px !important; }
+
+        .doc-viewer {
+            display: none;
+            flex-direction: column;
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            border-radius: 0;
+            z-index: 9999;
+        }
+        .doc-viewer.active { display: flex; pointer-events: auto; }
+        body.doc-viewer-open { overflow: hidden; }
+
+        /* Reading progress bar */
+        .doc-viewer-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+            transition: width 0.1s linear;
+            z-index: 3;
+        }
+
+        .doc-viewer-header {
+            position: relative;
+            background: var(--bg-card);
+            padding: 16px 28px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+        .doc-viewer-back {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: background 0.18s, color 0.18s;
+        }
+        .doc-viewer-back:hover { background: rgba(56,189,248,0.1); color: var(--accent-cyan); }
+        .doc-viewer-path {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .doc-viewer-toggle-toc {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            display: none; /* shown only on smaller screens */
+        }
+        .doc-viewer-toggle-toc:hover { background: rgba(255,255,255,0.08); }
+
+        /* Body — TOC sidebar + main content side-by-side */
+        .doc-viewer-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* TOC sidebar */
+        .doc-viewer-toc {
+            width: 240px;
+            flex-shrink: 0;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            overflow-y: auto;
+            padding: 24px 16px 24px 24px;
+            background: rgba(0,0,0,0.15);
+        }
+        .doc-viewer-toc-title {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .doc-viewer-toc ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .doc-viewer-toc li {
+            margin: 0;
+            padding: 0;
+        }
+        .doc-viewer-toc a {
+            display: block;
+            padding: 6px 10px;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            line-height: 1.45;
+            border-radius: 6px;
+            border-left: 2px solid transparent;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+            margin: 2px 0;
+        }
+        .doc-viewer-toc a:hover {
+            background: rgba(56,189,248,0.06);
+            color: var(--text-primary);
+        }
+        .doc-viewer-toc a.active {
+            background: rgba(56,189,248,0.1);
+            color: var(--accent-cyan);
+            border-left-color: var(--accent-cyan);
+            font-weight: 500;
+        }
+        .doc-viewer-toc .toc-h3 { padding-left: 22px; font-size: 0.78rem; }
+        .doc-viewer-toc .toc-h4 { padding-left: 34px; font-size: 0.74rem; }
+        .doc-viewer-toc-empty {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-style: italic;
+            padding: 8px 0;
+        }
+
+        /* Main scrollable area */
+        .doc-viewer-main {
+            flex: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding: 32px 48px 64px;
+            min-width: 0;
+        }
+        /* Constrain prose width for optimal reading */
+        .doc-viewer-content {
+            max-width: 760px;
+            margin: 0 auto;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            font-size: 0.98rem;
+            font-family: var(--font-sans);
+        }
+
+        /* Typography hierarchy */
+        .doc-viewer-content h1 {
+            font-family: var(--font-mono);
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            line-height: 1.25;
+            letter-spacing: -0.015em;
+            scroll-margin-top: 20px;
+        }
+        .doc-viewer-content h2 {
+            font-family: var(--font-mono);
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin: 38px 0 14px;
+            padding-top: 4px;
+            line-height: 1.3;
+            scroll-margin-top: 20px;
+        }
+        .doc-viewer-content h3 {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 28px 0 12px;
+            line-height: 1.35;
+            scroll-margin-top: 20px;
+        }
+        .doc-viewer-content h4 {
+            font-family: var(--font-mono);
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 20px 0 10px;
+            scroll-margin-top: 20px;
+        }
+        .doc-viewer-content h1 + p,
+        .doc-viewer-content h2 + p,
+        .doc-viewer-content h3 + p { margin-top: 4px; }
+
+        .doc-viewer-content p { margin: 0 0 14px; }
+        .doc-viewer-content ul, .doc-viewer-content ol {
+            margin: 4px 0 18px;
+            padding-left: 26px;
+        }
+        .doc-viewer-content li {
+            margin-bottom: 6px;
+            padding-left: 4px;
+        }
+        .doc-viewer-content li > p { margin-bottom: 6px; }
+
+        .doc-viewer-content strong { color: var(--text-primary); font-weight: 600; }
+        .doc-viewer-content em { color: var(--accent-purple); font-style: italic; }
+        .doc-viewer-content a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(56,189,248,0.4);
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .doc-viewer-content a:hover {
+            border-bottom-style: solid;
+            background: rgba(56,189,248,0.08);
+        }
+
+        /* Inline code */
+        .doc-viewer-content code {
+            font-family: var(--font-mono);
+            font-size: 0.86em;
+            background: rgba(56,189,248,0.1);
+            color: #7dd3fc;
+            padding: 2px 7px;
+            border-radius: 5px;
+            border: 1px solid rgba(56,189,248,0.18);
+        }
+
+        /* Code blocks with header + copy button */
+        .doc-viewer-content pre {
+            position: relative;
+            background: #0a0e1a;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+        .doc-viewer-content pre::before {
+            content: attr(data-lang);
+            display: block;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 6px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .doc-viewer-content pre[data-lang=""]::before,
+        .doc-viewer-content pre:not([data-lang])::before { display: none; }
+        .doc-viewer-content pre code {
+            display: block;
+            background: transparent;
+            color: var(--text-primary);
+            padding: 14px 18px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            border: 0;
+            white-space: pre;
+        }
+        .doc-viewer-copy-btn {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: rgba(56,189,248,0.1);
+            border: 1px solid rgba(56,189,248,0.25);
+            color: var(--accent-cyan);
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, background 0.15s;
+        }
+        .doc-viewer-content pre:hover .doc-viewer-copy-btn { opacity: 1; }
+        .doc-viewer-copy-btn:hover { background: rgba(56,189,248,0.2); }
+        .doc-viewer-copy-btn.copied {
+            background: rgba(52,211,153,0.15);
+            border-color: rgba(52,211,153,0.3);
+            color: #6ee7b7;
+            opacity: 1;
+        }
+
+        .doc-viewer-content blockquote {
+            border-left: 4px solid var(--accent-purple);
+            padding: 8px 0 8px 18px;
+            margin: 16px 0;
+            color: var(--text-muted);
+            background: rgba(167,139,250,0.04);
+            border-radius: 0 6px 6px 0;
+        }
+        .doc-viewer-content blockquote p { margin: 0; font-style: italic; }
+
+        /* Tables — wrapped in scrollable container by JS */
+        .doc-viewer-table-wrap {
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            background: #0a0e1a;
+        }
+        .doc-viewer-content table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.88rem;
+            margin: 0;
+        }
+        .doc-viewer-content th, .doc-viewer-content td {
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 10px 14px;
+            text-align: left;
+        }
+        .doc-viewer-content th {
+            background: rgba(56,189,248,0.08);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .doc-viewer-content td { color: var(--text-secondary); }
+        .doc-viewer-content tr:hover td { background: rgba(56,189,248,0.04); }
+        .doc-viewer-content tr:last-child td { border-bottom: 0; }
+
+        .doc-viewer-content hr {
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin: 36px 0;
+        }
+        .doc-viewer-content img { max-width: 100%; border-radius: 8px; }
+
+        /* Mermaid diagrams in docs */
+        .doc-viewer-content .mermaid {
+            background: #0a0e1a;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 18px 0;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
+        .doc-viewer-content .mermaid svg { max-width: 100%; height: auto; }
+
+        /* Responsive: collapse TOC on smaller screens */
+        @media (max-width: 900px) {
+            .modal-overlay.viewing-doc .modal { max-width: 100%; max-height: 100vh; border-radius: 0; }
+            .doc-viewer-toc {
+                position: absolute;
+                top: 60px; left: 0; bottom: 0;
+                z-index: 2;
+                background: var(--bg-card);
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.25s;
+            }
+            .doc-viewer-toc.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.4); }
+            .doc-viewer-toggle-toc { display: inline-flex; }
+            .doc-viewer-main { padding: 24px 20px 48px; }
+        }
+
+        .doc-viewer-error {
+            padding: 28px;
+            max-width: 760px;
+            margin: 0 auto;
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+        .doc-viewer-error code {
+            display: inline-block;
+            background: rgba(56,189,248,0.08);
+            border: 1px solid rgba(56,189,248,0.2);
+            border-radius: 4px;
+            padding: 2px 8px;
+            color: #7dd3fc;
+            font-family: var(--font-mono);
+            font-size: 0.85em;
+        }
+        .doc-viewer-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            gap: 10px;
+        }
+        .doc-viewer-loading::before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(56,189,248,0.2);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .modal-section { margin-bottom: 22px; }
+        .modal-section:last-child { margin-bottom: 0; }
+
+        .modal-section-title {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        .modal-section p {
+            font-size: 0.92rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .output-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+        .output-item {
+            background: var(--bg-elevated);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            transition: border-color 0.2s ease;
+        }
+        .output-item:hover { border-color: var(--border-hover); }
+
+        .output-icon {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .output-icon.doc  { background: rgba(129,140,248,0.12); color: #a5b4fc; border: 1px solid rgba(129,140,248,0.25); }
+        .output-icon.code { background: rgba(52,211,153,0.12); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.25); }
+        .output-icon.test { background: rgba(251,191,36,0.12); color: #fcd34d; border: 1px solid rgba(251,191,36,0.25); }
+        .output-icon.design { background: rgba(244,114,182,0.12); color: #f9a8d4; border: 1px solid rgba(244,114,182,0.25); }
+        .output-icon.deploy { background: rgba(45,212,191,0.12); color: #5eead4; border: 1px solid rgba(45,212,191,0.25); }
+        .output-icon.review { background: rgba(248,113,113,0.12); color: #fca5a5; border: 1px solid rgba(248,113,113,0.25); }
+        .output-icon.user { background: rgba(56,189,248,0.12); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.25); }
+
+        .output-content { flex: 1; min-width: 0; }
+        .output-name {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 2px;
+            word-break: break-all;
+        }
+        .output-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .agent-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--accent-purple);
+            background: rgba(167,139,250,0.1);
+            border: 1px solid rgba(167,139,250,0.25);
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .detail-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            border-radius: 12px 12px 0 0;
+            opacity: 0.7;
+        }
+
+        .detail-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 4px 24px rgba(56, 189, 248, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .details-greenfield .detail-card:nth-child(1)::before { background: var(--accent-pink); }
+        .details-greenfield .detail-card:nth-child(2)::before { background: var(--accent-purple); }
+        .details-greenfield .detail-card:nth-child(3)::before { background: var(--accent-green); }
+        .details-greenfield .detail-card:nth-child(4)::before { background: var(--accent-red); }
+        .details-greenfield .detail-card:nth-child(5)::before { background: var(--accent-amber); }
+        .details-greenfield .detail-card:nth-child(6)::before { background: var(--accent-teal); }
+
+        .details-brownfield .detail-card:nth-child(1)::before { background: var(--accent-cyan); }
+        .details-brownfield .detail-card:nth-child(2)::before { background: var(--accent-purple); }
+        .details-brownfield .detail-card:nth-child(3)::before { background: var(--accent-green); }
+        .details-brownfield .detail-card:nth-child(4)::before { background: var(--accent-red); }
+        .details-brownfield .detail-card:nth-child(5)::before { background: var(--accent-amber); }
+        .details-brownfield .detail-card:nth-child(6)::before { background: var(--accent-teal); }
+
+        /* Pipeline tabs */
+        .pipeline-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+        .pipeline-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border: 0;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            font-weight: 500;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: background 0.18s ease, color 0.18s ease;
+        }
+        .pipeline-tab:hover { color: var(--text-primary); }
+        .pipeline-tab.active {
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.25);
+        }
+        .pipeline-tab .tab-icon {
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .mermaid.hidden, .details.hidden { display: none !important; }
+        .legend.hidden { display: none !important; }
+
+        .pipeline-section { width: 100%; }
+        .pipeline-section.hidden { display: none; }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .step-0 { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+        .step-1 { background: rgba(244, 114, 182, 0.15); color: var(--accent-pink); border: 1px solid rgba(244, 114, 182, 0.3); }
+        .step-2 { background: rgba(167, 139, 250, 0.15); color: var(--accent-purple); border: 1px solid rgba(167, 139, 250, 0.3); }
+        .step-3 { background: rgba(52, 211, 153, 0.15); color: var(--accent-green); border: 1px solid rgba(52, 211, 153, 0.3); }
+        .step-4 { background: rgba(248, 113, 113, 0.15); color: var(--accent-red); border: 1px solid rgba(248, 113, 113, 0.3); }
+        .step-5 { background: rgba(251, 191, 36, 0.15); color: var(--accent-amber); border: 1px solid rgba(251, 191, 36, 0.3); }
+        .step-6 { background: rgba(45, 212, 191, 0.15); color: var(--accent-teal); border: 1px solid rgba(45, 212, 191, 0.3); }
+        .step-7 { background: rgba(34, 211, 238, 0.15); color: var(--accent-cyan); border: 1px solid rgba(34, 211, 238, 0.3); }
+
+        .card-header h3 {
+            font-family: var(--font-mono);
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .detail-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .detail-card li {
+            padding: 5px 0;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            display: flex;
+            gap: 8px;
+        }
+
+        .detail-card li::before {
+            content: ">";
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 48px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+        }
+
+        .footer-line {
+            width: 40px;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .header-tag .dot { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="header-tag">
+                <span class="dot"></span>
+                AIエージェントによる開発パイプライン
+            </div>
+            <h1>AI<span class="highlight">_</span>駆動型<br>ソフトウェア開発ライフサイクル</h1>
+            <p class="subtitle">自律型AIエージェントによるエンドツーエンドのソフトウェア開発 — 要件分析から本番リリースまで一貫対応いたします。</p>
+        </div>
+
+        <section class="foundation-section">
+            <div class="foundation-header">
+                <span class="foundation-badge"><span style="color:var(--accent-green)">●</span> 基盤構築</span>
+                <div>
+                    <h2 class="foundation-title">AIツール・エージェント環境構築</h2>
+                    <p class="foundation-subtitle">全パイプライン（Greenfield + Brownfield）共通の初期設定となります。プロジェクト着手前に必ず完了する必要がございます — AIツールの選定、カスタムエージェントの構築、セキュリティ強化を実施いたします。</p>
+                </div>
+            </div>
+
+            <div class="foundation-grid">
+                <!-- Card 1: ツール選定 -->
+                <div class="foundation-card card-tools">
+                    <div class="foundation-card-header">
+                        <span class="foundation-card-num">01</span>
+                        <h3 class="foundation-card-title">Claude Code採用理由・ツール選定</h3>
+                    </div>
+                    <div class="foundation-card-body">
+                        <p>主要なAIコーディングツール3製品を比較し、<strong>セキュリティ体制</strong>と<strong>エージェント基盤</strong>の観点から評価いたしました：</p>
+                        <table class="foundation-table">
+                            <thead>
+                                <tr><th>評価項目</th><th>Claude Code</th><th>Codex</th><th>Anti-Gravity</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>コンテキストウィンドウ</td><td class="pick">1M (Opus 4.7)</td><td>200k</td><td class="pick">1M+</td></tr>
+                                <tr><td>コード推論能力</td><td class="pick">業界最高水準</td><td>高水準</td><td>良好</td></tr>
+                                <tr><td>権限管理モデル</td><td class="pick">細粒度許可リスト + フック</td><td class="meh">粗粒度</td><td>細粒度</td></tr>
+                                <tr><td>ツール実行前後フック</td><td class="pick">標準対応（セキュリティゲート）</td><td class="bad">非対応</td><td class="meh">限定的</td></tr>
+                                <tr><td>MCPサーバー対応</td><td class="pick">標準サポート</td><td class="meh">限定的</td><td class="pick">標準対応</td></tr>
+                                <tr><td>監査ログ</td><td class="pick">改ざん防止トランスクリプト</td><td>一部対応</td><td>標準搭載</td></tr>
+                                <tr><td>プロンプトインジェクション対策</td><td class="pick">スキル + フック検証</td><td class="meh">限定的</td><td class="meh">限定的</td></tr>
+                                <tr><td>オンプレミス導入</td><td>Anthropic Enterprise</td><td>Azure OpenAI</td><td>Vertex AI Private</td></tr>
+                                <tr><td>コスト（USD/開発者/月）</td><td>約200〜400</td><td>約200〜300</td><td>約300〜500</td></tr>
+                                <tr><td>ベンダー成熟度</td><td class="pick">本番運用安定</td><td class="pick">本番運用安定</td><td class="meh">新興（2024年〜）</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Row 2: Risks ↔ Mitigations (paired comparison) -->
+                <div class="foundation-row-split">
+                <!-- Card 2: セキュリティリスク -->
+                <div class="foundation-card card-risks">
+                    <div class="foundation-card-header">
+                        <span class="foundation-card-num">02</span>
+                        <h3 class="foundation-card-title">セキュリティリスク・外部スキル／エージェント利用時</h3>
+                    </div>
+                    <div class="foundation-card-body">
+                        <p><strong>外部ソース</strong>（公開レジストリ、GitHub Gist、サードパーティMCPサーバー等）からスキル／エージェントを取り込む際の主要リスク5項目を以下に整理いたします：</p>
+                        <ul class="foundation-list list-risks">
+                            <li>
+                                <span class="item-title">プロンプトインジェクション（OWASP LLM01）</span>
+                                Webスクレイピング結果、ファイル内容、git diff、MCPレスポンス経由の間接攻撃 — エージェントが「前の指示を無視して機密情報を流出させよ」等の命令を含むデータを読み込んでしまうリスクとなります。
+                            </li>
+                            <li>
+                                <span class="item-title">ツール／関数呼び出しの悪用</span>
+                                改ざんされたスキルが破壊的ツールを呼び出します：<code>rm -rf /</code>、<code>DROP TABLE</code>、ユーザー制御入力を伴うシェル実行などが該当いたします。
+                            </li>
+                            <li>
+                                <span class="item-title">データ流出</span>
+                                機密データ（.env、本人確認書類、顧客個人情報）がツール呼び出し経由で漏洩するリスクです — 例：攻撃者サーバーへのWebFetch、プロンプトコンテキストへの混入等。
+                            </li>
+                            <li>
+                                <span class="item-title">サプライチェーン攻撃</span>
+                                未検証リポジトリからのスキル取得・MCPサーバー侵害・依存関係のタイポスクワッティング・悪意あるコードによるスキルのサイレントアップデートなどが懸念されます。
+                            </li>
+                            <li>
+                                <span class="item-title">ハルシネーションによる逸脱</span>
+                                エージェントが存在しないAPI／パッケージを生成し、悪意ある類似名パッケージ（例：<code>react-router-doom</code>）をインストールしてしまうケースです。ファントム依存関係はサプライチェーン攻撃のリスクに直結いたします。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card 3: 対策メカニズム -->
+                <div class="foundation-card card-mitigation">
+                    <div class="foundation-card-header">
+                        <span class="foundation-card-num">03</span>
+                        <h3 class="foundation-card-title">対策メカニズム・リスク低減策</h3>
+                    </div>
+                    <div class="foundation-card-body">
+                        <p><strong>多層防御（Defense in Depth）</strong> — 複数の防御層を組み合わせて運用いたします：</p>
+                        <ul class="foundation-list list-mitigations">
+                            <li>
+                                <span class="item-title">🤖 専用セキュリティ監査エージェント</span>
+                                全カスタムエージェント／スキルを専門にスキャンする独立エージェントを配置いたします。プロンプトインジェクションパターン、ロール上書き試行、危険なシェル実行、OWASP LLM Top 10を検出します。プリコミット + CIで実行し、<code>security-scan-agents.md</code>として出力されます。
+                            </li>
+                            <li>
+                                <span class="item-title">🔒 権限許可リスト方式</span>
+                                <code>.claude/settings.json</code>にて、破壊的ツールはデフォルト拒否設定とします。Bash／WebFetch／MCP呼び出しは個別に明示許可が必要です。<code>rm -rf</code>、<code>DROP</code>、生シェル実行は全てブロックいたします。
+                            </li>
+                            <li>
+                                <span class="item-title">⚙ ツール実行前フック</span>
+                                ツール実行前に入力を検証するフックを配置：プロンプトのサニタイズ、インジェクションパターン検知、シークレットスキャンを実施します。疑わしいパターンに合致した場合は実行を拒否いたします。
+                            </li>
+                            <li>
+                                <span class="item-title">📦 サンドボックスモード</span>
+                                高リスクツール（ファイル書込、Webフェッチ、実行系）は、エグレスホワイトリスト + ファイルシステムchrootによる隔離サンドボックス内で実行いたします。ネットワークアクセスは信頼ドメインのみに制限されます。
+                            </li>
+                            <li>
+                                <span class="item-title">📜 ソース信頼性確保・ハッシュ固定</span>
+                                スキルは検証済みGitHub組織（許可リスト）からのみ取得いたします。SHAハッシュを固定し自動アップデートは無効化します。新規スキルの導入はテックリード + セキュリティ部門のレビューを必須とします。
+                            </li>
+                            <li>
+                                <span class="item-title">📊 監視・監査</span>
+                                改ざん不可のトランスクリプトログ（S3 Object Lockで7年間保管）。異常なツール利用パターンを自動検知し、日次の自動レビュー、四半期ごとの外部ペネトレーションテストを実施いたします。
+                            </li>
+                        </ul>
+                        <div class="foundation-verdict">
+                            <strong>重要なポイント：</strong>セキュリティ監査エージェントは最初に構築するエージェント（他の全エージェントに先行）であり、後続の全エージェントをスキャンする役割を担います。自己ブートストラップ型セキュリティ：<em>「AIがAIを守る」</em>という設計思想となります。
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="pipeline-tabs" role="tablist">
+            <button class="pipeline-tab active" data-pipeline="greenfield" role="tab" aria-selected="true">
+                <span class="tab-icon">🌱</span> Greenfield（新規開発）
+            </button>
+            <button class="pipeline-tab" data-pipeline="brownfield" role="tab" aria-selected="false">
+                <span class="tab-icon">🏗</span> Brownfield（既存改修）
+            </button>
+        </div>
+
+        <div class="diagram-container">
+            <div class="terminal-bar">
+                <div class="terminal-dot red"></div>
+                <div class="terminal-dot yellow"></div>
+                <div class="terminal-dot green"></div>
+                <span class="terminal-title" id="terminalTitle">workflow.pipeline — greenfield · ai-agent-orchestration</span>
+            </div>
+
+            <div class="mermaid pipeline-greenfield">
+flowchart LR
+    USER[ユーザー / プロダクトオーナー<br>初期アイデア提示]
+
+    subgraph PHASE0["STEP 0 · プロジェクト初期化"]
+        direction TB
+        BRAINSTORM[Brainstormエージェント<br>アイデア創出]
+        DOCS_INIT[Docs Managerエージェント<br>SRS / ワイヤーフレーム / モックアップ]
+        DESIGN_TOOL[Figma / GG Stitch<br>デザイン詳細化]
+        BRAINSTORM --> DOCS_INIT --> DESIGN_TOOL
+    end
+
+    subgraph PHASE1["STEP 1 · 計画策定 + 人間承認ゲート"]
+        direction TB
+        PLANNER[Plannerエージェント<br>分析・計画]
+        RESEARCHER[Researcherエージェント群<br>並列調査]
+        DOCS[計画 + アーキテクチャ<br>+ 仕様書]
+        HGATE{{"👤 人間承認ゲート<br>計画レビュー・承認"}}
+        PLANNER --> RESEARCHER --> DOCS --> HGATE
+        HGATE -.->|却下・修正| PLANNER
+    end
+
+    subgraph PHASE2["STEP 2 · TDD（テスト駆動開発）"]
+        direction TB
+        RED["🔴 RED<br>最小限の失敗テスト作成"]
+        VRED{{"RED検証<br>正しい理由で失敗するか？"}}
+        GREEN["🟢 GREEN<br>テスト通過の最小コード"]
+        VGREEN{{"GREEN検証<br>全テスト合格・回帰なしか？"}}
+        REFACTOR["🔵 REFACTOR<br>合格状態を維持しつつ整理"]
+        RED --> VRED
+        VRED -->|はい| GREEN
+        VRED -.->|いいえ・テスト書直し| RED
+        GREEN --> VGREEN
+        VGREEN -->|はい| REFACTOR
+        VGREEN -.->|いいえ・コード修正| GREEN
+        REFACTOR -.->|次の機能へ| RED
+    end
+
+    subgraph PHASE3["STEP 3 · コードレビュー"]
+        direction TB
+        REVIEWER[Reviewerエージェント<br>品質・セキュリティ]
+        REPORT[レビュー報告書<br>指摘事項]
+        REVIEWER --> REPORT
+    end
+
+    subgraph PHASE4["STEP 4 · 人間最終レビュー"]
+        direction TB
+        HREVIEW["👤 人間レビュアー<br>全AI成果物の監査"]
+        HCHECKLIST{{"本番投入可否？<br>品質・業務適合・リスク"}}
+        HSIGNOFF["✅ 承認サインオフ<br>納品許可"]
+        HREVIEW --> HCHECKLIST
+        HCHECKLIST -->|承認| HSIGNOFF
+        HCHECKLIST -.->|却下| HREVIEW
+    end
+
+    subgraph PHASE5["STEP 5 · 納品・リリース"]
+        direction TB
+        COMMIT[Gitコミット・プッシュ]
+        PR[プルリクエスト]
+        DEPLOY[本番環境デプロイ]
+        COMMIT --> PR --> DEPLOY
+    end
+
+    USER --> PHASE0 --> PHASE1 --> PHASE2 --> PHASE3 --> PHASE4 --> PHASE5
+    PHASE3 -.->|指摘修正| PHASE2
+    PHASE4 -.->|差戻し・該当フェーズ修正| PHASE2
+    PHASE5 -.->|ドキュメント同期| PHASE1
+
+    classDef userClass fill:#0c4a6e,stroke:#38bdf8,color:#e0f2fe,stroke-width:2px
+    classDef initClass fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:2px
+    classDef planClass fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:2px
+    classDef docClass fill:#312e81,stroke:#818cf8,color:#e0e7ff,stroke-width:2px
+    classDef codeClass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:2px
+    classDef testClass fill:#78350f,stroke:#fbbf24,color:#fef3c7,stroke-width:2px
+    classDef reviewClass fill:#7f1d1d,stroke:#f87171,color:#fee2e2,stroke-width:2px
+    classDef humanClass fill:#713f12,stroke:#fbbf24,color:#fef3c7,stroke-width:2px
+    classDef deployClass fill:#134e4a,stroke:#2dd4bf,color:#ccfbf1,stroke-width:2px
+
+    class USER userClass
+    class BRAINSTORM,DOCS_INIT,DESIGN_TOOL initClass
+    class PLANNER planClass
+    class RESEARCHER,DOCS docClass
+    class HGATE,HREVIEW,HCHECKLIST,HSIGNOFF humanClass
+    class GREEN,REFACTOR codeClass
+    class RED testClass
+    class REVIEWER,REPORT reviewClass
+    class COMMIT,PR,DEPLOY deployClass
+            </div>
+
+            <div class="mermaid pipeline-brownfield hidden">
+flowchart LR
+    INPUT["お客様提供物<br>ソースコード + ドキュメント"]
+
+    subgraph BF0["STEP 0 · ドキュメント標準化"]
+        direction TB
+        BF_PARSE["Doc Parserエージェント<br>顧客ドキュメント解析"]
+        BF_REVERSE["リバースエンジニアリング<br>コードベース → アーキテクチャ"]
+        BF_GAP["Gap Analyzer<br>As-Is と To-Be の差異分析"]
+        BF_STD["標準化ドキュメント<br>SRS・ワイヤーフレーム・アーキテクチャ"]
+        BF_PARSE --> BF_REVERSE --> BF_GAP --> BF_STD
+    end
+
+    subgraph BF1["STEP 1 · 計画策定 + 人間承認ゲート"]
+        direction TB
+        BF_PLANNER[Plannerエージェント<br>移行戦略]
+        BF_RESEARCH[Researcherエージェント群<br>並列調査]
+        BF_PLAN_OUT[計画 + リスク管理表<br>+ フェーズタスク]
+        BF_HGATE{{"👤 人間承認ゲート<br>テックリード + PM + お客様SME"}}
+        BF_PLANNER --> BF_RESEARCH --> BF_PLAN_OUT --> BF_HGATE
+        BF_HGATE -.->|却下・修正| BF_PLANNER
+    end
+
+    subgraph BF2["STEP 2 · TDD（テスト駆動開発）"]
+        direction TB
+        BF_RED["🔴 RED<br>最小限の失敗テスト作成"]
+        BF_VRED{{"RED検証<br>正しい理由で失敗するか？"}}
+        BF_GREEN["🟢 GREEN<br>テスト通過の最小コード"]
+        BF_VGREEN{{"GREEN検証<br>全テスト合格・回帰なしか？"}}
+        BF_REFACTOR["🔵 REFACTOR<br>合格状態を維持しつつ整理"]
+        BF_RED --> BF_VRED
+        BF_VRED -->|はい| BF_GREEN
+        BF_VRED -.->|いいえ・テスト書直し| BF_RED
+        BF_GREEN --> BF_VGREEN
+        BF_VGREEN -->|はい| BF_REFACTOR
+        BF_VGREEN -.->|いいえ・コード修正| BF_GREEN
+        BF_REFACTOR -.->|次の機能へ| BF_RED
+    end
+
+    subgraph BF3["STEP 3 · コードレビュー"]
+        direction TB
+        BF_REVIEWER[Reviewerエージェント<br>品質・セキュリティ]
+        BF_REPORT[レビュー報告書<br>指摘事項]
+        BF_REVIEWER --> BF_REPORT
+    end
+
+    subgraph BF4["STEP 4 · 人間最終レビュー"]
+        direction TB
+        BF_HREVIEW["👤 人間レビュアー<br>全AI成果物の監査"]
+        BF_HCHECKLIST{{"本番投入可否？<br>品質・業務適合・リスク"}}
+        BF_HSIGNOFF["✅ 承認サインオフ<br>納品許可"]
+        BF_HREVIEW --> BF_HCHECKLIST
+        BF_HCHECKLIST -->|承認| BF_HSIGNOFF
+        BF_HCHECKLIST -.->|却下| BF_HREVIEW
+    end
+
+    subgraph BF5["STEP 5 · 納品・リリース"]
+        direction TB
+        BF_COMMIT[Gitコミット・プッシュ]
+        BF_PR[プルリクエスト]
+        BF_DEPLOY[本番環境デプロイ]
+        BF_COMMIT --> BF_PR --> BF_DEPLOY
+    end
+
+    INPUT --> BF0 --> BF1 --> BF2 --> BF3 --> BF4 --> BF5
+    BF3 -.->|指摘修正| BF2
+    BF4 -.->|差戻し・該当フェーズ修正| BF2
+    BF5 -.->|ドキュメント同期| BF1
+
+    classDef inputClass fill:#0c4a6e,stroke:#38bdf8,color:#e0f2fe,stroke-width:2px
+    classDef bfStdDoc fill:#083344,stroke:#22d3ee,color:#cffafe,stroke-width:2px
+    classDef bfPlan fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:2px
+    classDef bfDoc fill:#312e81,stroke:#818cf8,color:#e0e7ff,stroke-width:2px
+    classDef bfCode fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:2px
+    classDef bfTest fill:#78350f,stroke:#fbbf24,color:#fef3c7,stroke-width:2px
+    classDef bfReview fill:#7f1d1d,stroke:#f87171,color:#fee2e2,stroke-width:2px
+    classDef bfHuman fill:#713f12,stroke:#fbbf24,color:#fef3c7,stroke-width:2px
+    classDef bfDeploy fill:#134e4a,stroke:#2dd4bf,color:#ccfbf1,stroke-width:2px
+
+    class INPUT inputClass
+    class BF_PARSE,BF_REVERSE,BF_GAP,BF_STD bfStdDoc
+    class BF_PLANNER bfPlan
+    class BF_RESEARCH,BF_PLAN_OUT bfDoc
+    class BF_HGATE,BF_HREVIEW,BF_HCHECKLIST,BF_HSIGNOFF,BF_VRED,BF_VGREEN bfHuman
+    class BF_GREEN,BF_REFACTOR bfCode
+    class BF_RED bfTest
+    class BF_REVIEWER,BF_REPORT bfReview
+    class BF_COMMIT,BF_PR,BF_DEPLOY bfDeploy
+            </div>
+
+            <div class="legend pipeline-greenfield">
+                <div class="legend-item"><div class="legend-dot dot-pink"></div>プロジェクト初期化</div>
+                <div class="legend-item"><div class="legend-dot dot-purple"></div>計画策定・ドキュメント整備</div>
+                <div class="legend-item"><div class="legend-dot dot-green"></div>TDD実装（コーディング）</div>
+                <div class="legend-item"><div class="legend-dot dot-red"></div>コードレビュー</div>
+                <div class="legend-item"><div class="legend-dot dot-amber"></div>👤 人間レビュー・承認ゲート</div>
+                <div class="legend-item"><div class="legend-dot dot-teal"></div>納品・リリース</div>
+            </div>
+
+            <div class="legend pipeline-brownfield hidden">
+                <div class="legend-item"><div class="legend-dot dot-cyan"></div>ドキュメント標準化</div>
+                <div class="legend-item"><div class="legend-dot dot-purple"></div>計画策定・ドキュメント整備</div>
+                <div class="legend-item"><div class="legend-dot dot-green"></div>TDD（特性テスト + サイクル）</div>
+                <div class="legend-item"><div class="legend-dot dot-red"></div>コードレビュー + 回帰テスト</div>
+                <div class="legend-item"><div class="legend-dot dot-amber"></div>👤 人間レビュー・承認ゲート</div>
+                <div class="legend-item"><div class="legend-dot dot-teal"></div>慎重なリリース</div>
+            </div>
+        </div>
+
+        <div class="details details-greenfield pipeline-greenfield">
+            <div class="detail-card" data-step="0">
+                <div class="card-header">
+                    <span class="step-num step-1">00</span>
+                    <h3>プロジェクト初期化</h3>
+                </div>
+                <ul>
+                    <li>Brainstormエージェントによるアイデア検討・創出</li>
+                    <li>Docs ManagerによるSRS・ワイヤーフレーム・モックアップ作成</li>
+                    <li>Figma / GG Stitch / Claude Designによるプロダクトデザインの詳細化</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="1">
+                <div class="card-header">
+                    <span class="step-num step-2">01</span>
+                    <h3>計画策定 + 人間承認ゲート</h3>
+                </div>
+                <ul>
+                    <li>Plannerエージェントが実装計画を作成</li>
+                    <li>Researcherエージェントが並列で技術調査を実施</li>
+                    <li>アーキテクチャ・フェーズ・仕様書を自動生成</li>
+                    <li>👤 <b>人間承認ゲート</b> — 計画レビュー、スコープ・トレードオフ検証</li>
+                    <li>承認または却下（却下時は修正ループへ）</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="2">
+                <div class="card-header">
+                    <span class="step-num step-3">02</span>
+                    <h3>TDD（テスト駆動開発）</h3>
+                </div>
+                <ul>
+                    <li>🔴 <b>RED</b> — 1つの振る舞いに対する最小限の失敗テストを作成</li>
+                    <li>✅ <b>Verify RED</b> — テストが正しい理由で失敗することを確認（ゲート）</li>
+                    <li>🟢 <b>GREEN</b> — テストを通過する最小限のコードを実装</li>
+                    <li>✅ <b>Verify GREEN</b> — 全テスト合格・回帰なしを確認（ゲート）</li>
+                    <li>🔵 <b>REFACTOR</b> — 合格状態を維持しつつコードを整理</li>
+                    <li>⛔ <i>失敗テストなしでプロダクションコードを書くことは禁止</i></li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="3">
+                <div class="card-header">
+                    <span class="step-num step-4">03</span>
+                    <h3>コードレビュー</h3>
+                </div>
+                <ul>
+                    <li>Reviewerエージェントが品質・セキュリティを監査</li>
+                    <li>エッジケース・性能問題を検出</li>
+                    <li>問題発見時 → TDDループへ差戻し</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="4">
+                <div class="card-header">
+                    <span class="step-num step-5">04</span>
+                    <h3>👤 人間最終レビュー</h3>
+                </div>
+                <ul>
+                    <li>全AI成果物（コード・テスト・ドキュメント・レビュー報告書）を人間が監査</li>
+                    <li>品質 + 業務適合性 + 本番リスクを検証</li>
+                    <li>デプロイ前のサインオフチェックリストゲート</li>
+                    <li>却下 → 該当フェーズへ差戻し修正</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="5">
+                <div class="card-header">
+                    <span class="step-num step-6">05</span>
+                    <h3>納品・デプロイ</h3>
+                </div>
+                <ul>
+                    <li>Conventional Commits形式で自動コミット</li>
+                    <li>サマリ・テスト計画付きのPRを作成</li>
+                    <li>デプロイ・ドキュメント更新の同期</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+        </div>
+
+        <div class="details details-brownfield pipeline-brownfield hidden">
+            <div class="detail-card" data-step="0" data-pipeline="brownfield">
+                <div class="card-header">
+                    <span class="step-num step-7">00</span>
+                    <h3>📚 ドキュメント標準化</h3>
+                </div>
+                <ul>
+                    <li>Doc Parserエージェントがお客様提供ドキュメントを読込・解析</li>
+                    <li>リバースエンジニアリングエージェントが既存コードベースからAs-Isアーキテクチャを抽出</li>
+                    <li>Gap AnalyzerがAs-IsとTo-Beを比較 → 影響範囲マップを作成</li>
+                    <li>標準化ドキュメント一式（SRS・ワイヤーフレーム・アーキテクチャ）を出力 — Greenfieldと同フォーマットで統一</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="1" data-pipeline="brownfield">
+                <div class="card-header">
+                    <span class="step-num step-2">01</span>
+                    <h3>計画策定 + 人間承認ゲート</h3>
+                </div>
+                <ul>
+                    <li>Plannerエージェントが移行戦略を提案（Strangler Fig／段階的／一括移行）</li>
+                    <li>Researcherエージェントを並列実行・リスク管理表・フェーズ別タスクを作成</li>
+                    <li>👤 <b>人間承認ゲート</b> — テックリード + PM + <b>お客様SME</b>が計画を承認</li>
+                    <li>却下 → 修正ループへ差戻し</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="2" data-pipeline="brownfield">
+                <div class="card-header">
+                    <span class="step-num step-3">02</span>
+                    <h3>TDD（テスト駆動開発）</h3>
+                </div>
+                <ul>
+                    <li>🔴 <b>RED</b> — 1つの振る舞いに対する最小限の失敗テストを作成</li>
+                    <li>✅ <b>Verify RED</b> — テストが正しい理由で失敗することを確認（ゲート）</li>
+                    <li>🟢 <b>GREEN</b> — テストを通過する最小限のコードを実装</li>
+                    <li>✅ <b>Verify GREEN</b> — 全テスト合格・回帰なしを確認（ゲート）</li>
+                    <li>🔵 <b>REFACTOR</b> — 合格状態を維持しつつコードを整理</li>
+                    <li>⛔ <i>失敗テストなしでプロダクションコードを書くことは禁止</i></li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="3" data-pipeline="brownfield">
+                <div class="card-header">
+                    <span class="step-num step-4">03</span>
+                    <h3>コードレビュー</h3>
+                </div>
+                <ul>
+                    <li>Reviewerエージェントが品質・セキュリティを監査</li>
+                    <li>エッジケース・性能問題を検出</li>
+                    <li>問題発見時 → TDDループへ差戻し</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="4" data-pipeline="brownfield">
+                <div class="card-header">
+                    <span class="step-num step-5">04</span>
+                    <h3>👤 人間最終レビュー</h3>
+                </div>
+                <ul>
+                    <li>全AI成果物（コード・テスト・ドキュメント・レビュー報告書）を人間が監査</li>
+                    <li>品質 + 業務適合性 + 本番リスクを検証</li>
+                    <li>デプロイ前のサインオフチェックリストゲート</li>
+                    <li>却下 → 該当フェーズへ差戻し修正</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+            <div class="detail-card" data-step="5" data-pipeline="brownfield">
+                <div class="card-header">
+                    <span class="step-num step-6">05</span>
+                    <h3>納品・デプロイ</h3>
+                </div>
+                <ul>
+                    <li>Conventional Commits形式で自動コミット</li>
+                    <li>サマリ・テスト計画付きのPRを作成</li>
+                    <li>デプロイ・ドキュメント更新の同期</li>
+                </ul>
+                <div class="card-cta">詳細を確認 →</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span class="footer-line"></span>
+            Powered by Claude Code — AIエージェント・オーケストレーション
+            <span class="footer-line"></span>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="stepModal" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal">
+            <div class="doc-viewer" id="docViewer">
+                <div class="doc-viewer-progress" id="docViewerProgress"></div>
+                <div class="doc-viewer-header">
+                    <button class="doc-viewer-back" id="docViewerBack">← 戻る</button>
+                    <button class="doc-viewer-toggle-toc" id="docViewerToggleToc" aria-label="目次の表示切替">☰ 目次</button>
+                    <span class="doc-viewer-path" id="docViewerPath"></span>
+                </div>
+                <div class="doc-viewer-body">
+                    <aside class="doc-viewer-toc" id="docViewerToc">
+                        <div class="doc-viewer-toc-title">このページの目次</div>
+                        <ul id="docViewerTocList"></ul>
+                    </aside>
+                    <div class="doc-viewer-main" id="docViewerMain">
+                        <article class="doc-viewer-content" id="docViewerContent"></article>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-header">
+                <span class="step-num" id="modalStepNum">00</span>
+                <h2 id="modalTitle">ステップタイトル</h2>
+                <button class="modal-close" id="modalClose" aria-label="閉じる">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="project-banner">
+                    <div class="project-banner-tag">プロジェクト概要</div>
+                    <div class="project-banner-name">VietPay <span class="project-banner-sub">— 電子ウォレット・P2P送金アプリ</span></div>
+                    <div class="project-banner-desc">ベトナム向けFintechウォレット・P2P送金 + VietQR決済・React Native + NestJS・Sepay／VNPT eKYC・SBV（ベトナム国家銀行）規制準拠</div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">本ステップの実施内容</div>
+                    <p id="modalDescription"></p>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">必要なインプット</div>
+                    <ul class="output-list" id="modalInputs"></ul>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">参加エージェント</div>
+                    <div id="modalAgents"></div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">アウトプット・納品物</div>
+                    <ul class="output-list" id="modalOutputs"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            themeVariables: {
+                darkMode: true,
+                background: '#0F1629',
+                primaryColor: '#0c4a6e',
+                primaryTextColor: '#e0f2fe',
+                primaryBorderColor: '#38bdf8',
+                lineColor: '#475569',
+                secondaryColor: '#2e1065',
+                tertiaryColor: '#0F1629',
+                fontSize: '13px',
+                fontFamily: "'JetBrains Mono', 'Fira Code', monospace"
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                padding: 16,
+                nodeSpacing: 30,
+                rankSpacing: 45
+            }
+        });
+
+        // Bind click on flowchart subgraphs (STEP n) to open the corresponding step modal.
+        // Mermaid renders subgraphs as <g class="cluster"> — we match by label text "STEP <n>".
+        function bindFlowchartClicks(container, pipeline) {
+            if (!container) return;
+            container.querySelectorAll('.cluster').forEach(cluster => {
+                const text = (cluster.textContent || '').toUpperCase();
+                const m = text.match(/STEP\s+(\d+)/);
+                if (!m) return;
+                const stepKey = String(parseInt(m[1], 10));
+                cluster.style.cursor = 'pointer';
+                cluster.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (typeof openModal === 'function') openModal(stepKey, pipeline);
+                });
+            });
+        }
+
+        async function runMermaidAndBind(node, pipeline) {
+            if (!node || !window.mermaid) return;
+            try {
+                await mermaid.run({ nodes: [node] });
+                node.dataset.processed = '1';
+                bindFlowchartClicks(node, pipeline);
+            } catch (e) { console.error(e); }
+        }
+
+        // Render only the active pipeline at startup; brownfield is rendered lazily on tab switch.
+        document.addEventListener('DOMContentLoaded', () => {
+            const initial = document.querySelector('.mermaid.pipeline-greenfield');
+            runMermaidAndBind(initial, 'greenfield');
+        });
+    </script>
+
+    <script>
+        const STEP_DATA = {
+            '0': {
+                num: '00', colorClass: 'step-1', title: 'プロジェクト初期化',
+                description: 'VietPayプロジェクトの基盤構築フェーズです。ベトナム電子ウォレット市場におけるプロダクトポジショニングのブレインストーミング、SBV（ベトナム国家銀行）規制準拠のSRS草案作成、主要フロー（オンボーディング、eKYC、P2P送金、VietQRスキャン）のワイヤーフレーム作成、続いてFigmaにてデザインシステムを完成させます。',
+                agents: ['Brainstormエージェント', 'Docs Managerエージェント', 'デザインツール (Figma)'],
+                inputs: [
+                    {
+                        type: 'user', name: 'お客様ビジョン／プロジェクトブリーフ',
+                        desc: '創業者／POからVietPayの構想説明：ベトナム市場向けの電子ウォレット + P2P送金 + VietQR、ターゲットはZ世代・ミレニアル世代となります。',
+                        tags: [{ label: '人間提供', cls: '' }, { label: '必須', cls: 'priority' }]
+                    },
+                    {
+                        type: 'user', name: '市場・規制情報',
+                        desc: 'ベトナムFintech市場情報（MoMo、ZaloPay等）、SBV規制、KYC／AML制約。ドキュメント／Web調査からの解析も可能です。',
+                        tags: [{ label: '調査インプット', cls: '' }, { label: '任意', cls: '' }]
+                    },
+                    {
+                        type: 'design', name: 'ブランド素材（ロゴ、カラー）',
+                        desc: '初期ブランドアイデンティティ — ロゴ、ブランドカラー（#00B074 VietPayグリーン）、タイポグラフィの希望。未準備の場合はデザインツールから提案いたします。',
+                        tags: [{ label: '任意', cls: '' }]
+                    }
+                ],
+                outputs: [
+                    {
+                        type: 'doc', name: 'docs/idea-brainstorm.md',
+                        path: 'docs/idea-brainstorm.md',
+                        desc: 'MoMo／ZaloPay／ViettelPayに対するプロダクトポジショニング。ターゲット：ベトナムのZ世代・ミレニアル世代。USP：洗練されたUX + AI自動カテゴリ分類 + ソーシャル割り勘機能。',
+                        tags: [{ label: '発見フェーズ', cls: '' }, { label: '約1.2k LOC', cls: '' }],
+                        preview: '<span class="pk">target_users</span>: <span class="pv">"Z世代・ミレニアル世代、18-35歳、ベトナム都市部"</span>\n<span class="pk">pain_points</span>:\n  - <span class="pv">"友人との割り勘が困難"</span>\n  - <span class="pv">"銀行アプリのUXが複雑"</span>\n  - <span class="pv">"統一されたウォレットが不在"</span>\n<span class="pk">competitors</span>: <span class="pv">[MoMo, ZaloPay, ShopeePay, ViettelPay]</span>\n<span class="pk">differentiator</span>: <span class="pv">"ソーシャル重視 + AIインサイト"</span>'
+                    },
+                    {
+                        type: 'doc', name: 'docs/competitive-analysis.md',
+                        path: 'docs/competitive-analysis.md',
+                        desc: '主要競合4社との機能マトリクス + 市場ポジショニングマップ。',
+                        tags: [{ label: '調査結果', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/srs.md',
+                        path: 'docs/srs.md',
+                        desc: 'ソフトウェア要件仕様書 — 機能要件12件 + 非機能要件8件 + SBV／AML／KYC／PCI-DSS制約事項。',
+                        tags: [{ label: '機能要件12件', cls: '' }, { label: '非機能要件8件', cls: '' }, { label: 'SBV準拠', cls: 'success' }],
+                        preview: '<span class="pc"># FR-005: P2P送金</span>\nユーザーが電話番号／QRコード／銀行口座経由で受取人へVNDを送金します。\n<span class="pk">- 上限:</span> <span class="pv">1取引1,000万VND・1日1億VND</span>\n<span class="pk">- レイテンシ:</span> <span class="pv">エンドツーエンド3秒未満</span>\n<span class="pk">- 冪等性:</span> <span class="pv">必須（Idempotency-Keyヘッダー）</span>\n\n<span class="pc"># NFR-002: 可用性</span>\n<span class="pk">- SLA:</span> <span class="pv">99.9%稼働率（月間ダウンタイム43.8分）</span>'
+                    },
+                    {
+                        type: 'design', name: 'docs/wireframes/onboarding-flow.md',
+                        path: 'docs/wireframes/onboarding-flow.md',
+                        desc: '7画面のオンボーディング：電話番号 → OTP → eKYC（CMND／CCCDスキャン + 自撮り）→ 銀行口座連携 → PIN設定 → 生体認証 → ダッシュボード。',
+                        tags: [{ label: 'ワイヤーフレーム', cls: '' }, { label: '7画面', cls: '' }]
+                    },
+                    {
+                        type: 'design', name: 'docs/wireframes/p2p-transfer-flow.md',
+                        path: 'docs/wireframes/p2p-transfer-flow.md',
+                        desc: '送金フロー：受取人選択 → 金額・メモ入力 → 確認 → 生体認証 → 完了アニメーション + 領収書。',
+                        tags: [{ label: 'ワイヤーフレーム', cls: '' }, { label: '6画面', cls: '' }]
+                    },
+                    {
+                        type: 'design', name: 'docs/wireframes/vietqr-scan-flow.md',
+                        path: 'docs/wireframes/vietqr-scan-flow.md',
+                        desc: 'VietQRスキャンフロー：カメラ起動 → QR解析 → 加盟店・金額確認 → 生体認証 → 完了。',
+                        tags: [{ label: 'ワイヤーフレーム', cls: '' }, { label: '5画面', cls: '' }]
+                    },
+                    {
+                        type: 'design', name: 'docs/mockups/home-dashboard.fig',
+                        desc: 'ホーム画面の高精細モックアップ：残高カード・クイックアクション・直近取引・支出インサイト。',
+                        tags: [{ label: '高精細', cls: '' }, { label: 'ライト・ダーク両対応', cls: '' }]
+                    },
+                    {
+                        type: 'design', name: 'design/figma-link.md',
+                        desc: 'Figmaプロジェクト：42画面・24コンポーネント・オートレイアウト・全状態（通常／ホバー／押下／無効／読込中）のバリアント完備。',
+                        tags: [{ label: '42画面', cls: '' }, { label: '24コンポーネント', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/design-system.md',
+                        desc: 'デザイントークン：VietPayブランドカラー、タイポグラフィInter + SF Pro、4pxグリッドスペーシング、半径スケール、エレベーショントークン。',
+                        tags: [{ label: 'トークン', cls: '' }],
+                        preview: '<span class="pc">// ブランドカラー</span>\n<span class="pk">--brand-primary</span>: <span class="pv">#00B074</span>  <span class="pc">// VietPayグリーン</span>\n<span class="pk">--brand-secondary</span>: <span class="pv">#0EA5E9</span>\n<span class="pk">--success</span>: <span class="pv">#16A34A</span>\n<span class="pk">--warning</span>: <span class="pv">#F59E0B</span>\n<span class="pk">--danger</span>: <span class="pv">#DC2626</span>\n\n<span class="pc">// タイポグラフィ</span>\n<span class="pk">--font-display</span>: <span class="pv">"SF Pro Display"</span>\n<span class="pk">--font-body</span>: <span class="pv">"Inter"</span>'
+                    }
+                ]
+            },
+            '1': {
+                num: '01', colorClass: 'step-2', title: '計画策定 + 人間承認ゲート',
+                description: 'PlannerエージェントがMVPを分析し、Researcherエージェント3体（Sepay決済、VNPT eKYC、SBV規制）を並列起動いたします。これらを統合し、8フェーズ／12週間の計画を作成します。クリティカルパスは「KYC → 認証 → 銀行口座連携 → 送金エンジン」となります。**人間承認ゲート**：テックリード + PMが計画を精査し、スコープ整合性、アーキテクチャ妥当性、工数見積もり、リスク管理表を検証いたします。承認後にSTEP 03 TDDが解放され、却下時はPlannerへ修正ループとなります。',
+                agents: ['Plannerエージェント', 'Researcherエージェント（Sepay担当）', 'Researcherエージェント（eKYC担当）', 'Researcherエージェント（SBV担当）', '👤 人間テックリード', '👤 人間PM'],
+                inputs: [
+                    {
+                        type: 'doc', name: 'docs/srs.md',
+                        path: 'docs/srs.md',
+                        desc: 'STEP 00で作成されたソフトウェア要件仕様書 — 機能要件12件 + 非機能要件8件 + SBV／AML／KYC／PCI-DSS制約事項。',
+                        tags: [{ label: 'STEP 00より', cls: '' }, { label: '必須', cls: 'priority' }]
+                    },
+                    {
+                        type: 'design', name: 'docs/wireframes/*.md',
+                        desc: '主要フローのワイヤーフレーム（オンボーディング、P2P送金、VietQRスキャン）— PlannerがUI工数見積もりに使用いたします。',
+                        tags: [{ label: 'STEP 00より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/design-system.md',
+                        path: 'docs/design-system.md',
+                        desc: 'デザイントークン（カラー、タイポグラフィ、スペーシング）— UIコンポーネントフェーズへのインプット。',
+                        tags: [{ label: 'STEP 00より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/competitive-analysis.md',
+                        path: 'docs/competitive-analysis.md',
+                        desc: '競合分析 — Researcherが機能スコープ・技術スタック選定のベンチマークに使用いたします。',
+                        tags: [{ label: 'STEP 00より', cls: '' }]
+                    },
+                    {
+                        type: 'user', name: '技術スタック制約',
+                        desc: 'チームからの確定制約条件：React Native（モバイル）、NestJS（バックエンド）、PostgreSQL、AWSリージョンap-southeast-1。',
+                        tags: [{ label: '人間提供', cls: '' }]
+                    }
+                ],
+                outputs: [
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/plan.md',
+                        path: 'plans/260505-1100-vietpay-mvp/plan.md',
+                        desc: 'マスタープラン：8フェーズ・12週間・クリティカルパス・ガントチャート・リソース配分・リスク管理表。',
+                        tags: [{ label: '8フェーズ', cls: '' }, { label: '12週間', cls: '' }, { label: 'マスター', cls: 'priority' }],
+                        preview: '<span class="pc"># VietPay MVP — マスタープラン</span>\n\n<span class="pk">Phase 01</span> <span class="pv">インフラ構築</span>             (週1)\n<span class="pk">Phase 02</span> <span class="pv">認証 + eKYC</span>            (週2-3) ⚡ クリティカル\n<span class="pk">Phase 03</span> <span class="pv">銀行口座連携</span>             (週4)   ⚡ クリティカル\n<span class="pk">Phase 04</span> <span class="pv">P2P送金エンジン</span>          (週5-7) ⚡ クリティカル\n<span class="pk">Phase 05</span> <span class="pv">VietQR決済</span>              (週8-9)\n<span class="pk">Phase 06</span> <span class="pv">取引履歴</span>                 (週10)\n<span class="pk">Phase 07</span> <span class="pv">通知機能</span>                 (週11)\n<span class="pk">Phase 08</span> <span class="pv">堅牢化 + ローンチ</span>        (週12)'
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/phase-01-infrastructure-setup.md',
+                        path: 'plans/260505-1100-vietpay-mvp/phase-01-infrastructure-setup.md',
+                        desc: 'Phase 01：AWS Organizations・Terraform IaC・ECS Fargate・RDS Multi-AZ・MSK Kafka・CI/CDパイプライン。',
+                        tags: [{ label: '週1', cls: '' }, { label: 'タスク30件', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/phase-02-auth-ekyc.md',
+                        path: 'plans/260505-1100-vietpay-mvp/phase-02-auth-ekyc.md',
+                        desc: 'Phase 02：OTP + JWT + 生体認証 + VNPT eKYC + 手動審査キュー + 監査ログ。',
+                        tags: [{ label: '週2-3', cls: '' }, { label: 'タスク47件', cls: '' }, { label: 'クリティカル', cls: 'priority' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/phase-03-bank-account-linking.md',
+                        path: 'plans/260505-1100-vietpay-mvp/phase-03-bank-account-linking.md',
+                        desc: 'Phase 03：Sepayマイクロデポジット検証・ベトナム主要10銀行対応・冪等性チャージ・Webhook重複排除。',
+                        tags: [{ label: '週4', cls: '' }, { label: 'タスク26件', cls: '' }, { label: 'クリティカル', cls: 'priority' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/phase-04-p2p-transfer-engine.md',
+                        path: 'plans/260505-1100-vietpay-mvp/phase-04-p2p-transfer-engine.md',
+                        desc: 'Phase 04（最長フェーズ）：冪等性Redis SETNX・複式簿記台帳・SELECT FOR UPDATE・1,000同時カオステスト。',
+                        tags: [{ label: '週5-7', cls: '' }, { label: 'タスク34件', cls: '' }, { label: 'クリティカル', cls: 'priority' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/phase-05-vietqr-payment.md',
+                        path: 'plans/260505-1100-vietpay-mvp/phase-05-vietqr-payment.md',
+                        desc: 'Phase 05：VietQR EMVフォーマット・スキャン + 生成・10銀行間互換性テスト。',
+                        tags: [{ label: '週8-9', cls: '' }, { label: 'タスク25件', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/phase-06-transaction-history.md',
+                        path: 'plans/260505-1100-vietpay-mvp/phase-06-transaction-history.md',
+                        desc: 'Phase 06：カーソルページネーション・ML活用の加盟店自動カテゴリ分類・CSVエクスポート・支出インサイト。',
+                        tags: [{ label: '週10', cls: '' }, { label: 'タスク28件', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/phase-07-notifications.md',
+                        path: 'plans/260505-1100-vietpay-mvp/phase-07-notifications.md',
+                        desc: 'Phase 07：FCM + APNs・複数デバイス配信・ベトナム語／英語i18n・詳細通知設定・90日アプリ内インボックス。',
+                        tags: [{ label: '週11', cls: '' }, { label: 'タスク30件', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/phase-08-hardening-launch.md',
+                        path: 'plans/260505-1100-vietpay-mvp/phase-08-hardening-launch.md',
+                        desc: 'Phase 08：20万負荷テスト・カオスエンジニアリング・ペネトレーションテスト・App Store申請・SBVライセンス・一般公開。',
+                        tags: [{ label: '週12', cls: '' }, { label: 'タスク50件', cls: '' }, { label: 'クリティカル', cls: 'priority' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/system-architecture.md',
+                        path: 'docs/system-architecture.md',
+                        desc: 'マイクロサービス構成：6サービス + Kafkaイベントバス + サービスごとDB + APIゲートウェイ。AWSマルチリージョン・コスト約$3,570/月（MAU 5万時）。',
+                        tags: [{ label: '6サービス', cls: '' }, { label: 'イベント駆動', cls: '' }, { label: 'マルチリージョン', cls: '' }],
+                        preview: '<span class="pc"># サービストポロジ</span>\n\n  api-gateway (Kong) → 6 services\n    ├─ <span class="pv">auth-service</span>      (PostgreSQL + Redis)\n    ├─ <span class="pv">kyc-service</span>       (PostgreSQL + S3 ID保管)\n    ├─ <span class="pv">wallet-service</span>    (PostgreSQL — 台帳)\n    ├─ <span class="pv">transfer-service</span>  (PostgreSQL + Redisロック)\n    ├─ <span class="pv">payment-service</span>   (Sepayアダプタ + Redis)\n    └─ <span class="pv">notification-service</span> (FCM + APNs)\n\n  <span class="pk">イベントバス:</span> <span class="pv">Kafka (transaction.created, transfer.completed)</span>'
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/plan-review-checklist-260605.md',
+                        desc: '👤 人間承認ゲートの成果物：テックリード + PMが計画をレビューし、6セクション（スコープ・アーキテクチャ・工数・リスク・依存関係・成功基準）をチェック。ステータス：承認済み・TDD準備完了。',
+                        tags: [{ label: '承認済み', cls: 'success' }, { label: '人間承認ゲート', cls: 'priority' }, { label: '6セクション', cls: '' }],
+                        preview: '<span class="pc"># 計画レビューチェックリスト · VietPay MVP</span>\n\n<span class="pk">レビュアー:</span>\n  - <span class="pv">テックリード</span>  (Long N.)  ✓\n  - <span class="pv">PM</span>            (Quân T.)  ✓\n\n<span class="pc">## チェック項目</span>\n  ✓ <span class="pk">[1] スコープ整合性</span>   — PRDと一致\n  ✓ <span class="pk">[2] アーキテクチャ</span>   — マイクロサービス構成は妥当\n  ✓ <span class="pk">[3] 工数見積もり</span>     — 12週間は現実的\n  ✓ <span class="pk">[4] リスク管理表</span>     — 7件のリスク・全て対策済み\n  ✓ <span class="pk">[5] 依存関係</span>         — Sepay／VNPT契約準備完了\n  ✓ <span class="pk">[6] 成功基準</span>         — 測定可能\n\n<span class="pk">判定:</span> <span class="pv">承認済み・STEP 03 TDDへ移行可</span>'
+                    },
+                    {
+                        type: 'doc', name: 'docs/human-roles-step-02.md',
+                        desc: '計画ゲートにおける人間の役割を明確化：誰がレビューし、何を検証し、いつ承認／却下し、どうエスカレーションするかを定義いたします。',
+                        tags: [{ label: 'RACI', cls: '' }, { label: 'ガバナンス', cls: '' }],
+                        preview: '<span class="pc"># 人間の役割 · 計画ゲート</span>\n\n<span class="pk">担当者:</span>\n  - <span class="pv">テックリード</span>   (アーキテクチャ・実現可能性)\n  - <span class="pv">PM</span>             (スコープ・スケジュール・リソース)\n  - <span class="pv">PO（任意）</span>     (ビジネス優先度)\n\n<span class="pk">検証項目:</span>\n  - 計画はPRDのスコープと整合しているか？\n  - アーキテクチャ判断は妥当か？\n  - 12週間の工数は現実的か？\n  - リスクは網羅・対策済みか？\n  - クリティカルパスは正しいか？\n\n<span class="pk">承認条件:</span>\n  - 6項目全てチェック完了 ✓\n  - ブロッカー懸念なし\n\n<span class="pk">却下条件:</span>\n  - スコープの大幅な不一致 → Plannerエージェントへ修正指示\n  - アーキテクチャ懸念 → Researcherへ再調査依頼\n\n<span class="pk">SLA:</span> 計画提示から48時間以内にレビュー実施'
+                    }
+                ]
+            },
+            '2': {
+                num: '02', colorClass: 'step-3', title: 'TDD（テスト駆動開発）',
+                description: '<b>obra/superpowers</b>フレームワークに基づく6ステップTDDサイクルを実施いたします：(1) 🔴 <b>RED</b> 最小限の失敗テストを作成、(2) ✅ <b>Verify RED</b> テストが正しい理由で失敗することを確認（判定ゲート）、(3) 🟢 <b>GREEN</b> テスト通過に必要最小限のコードを実装、(4) ✅ <b>Verify GREEN</b> 全テスト合格・回帰なしを確認（判定ゲート）、(5) 🔵 <b>REFACTOR</b> 合格状態を維持しつつコードを整理、(6) 次の振る舞いへループ。厳守ルール：<i>「失敗テストなしでプロダクションコードを書くことは禁止」</i> — テスト前に書かれたコードは全て削除し、TDDで書き直す必要がございます。出典：<code>skills/test-driven-development/SKILL.md</code>。',
+                inputs: [
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/plan.md',
+                        path: 'plans/260505-1100-vietpay-mvp/plan.md',
+                        desc: '人間承認ゲートで承認済みのマスタープラン — 8フェーズ／12週間の方針、クリティカルパス、依存関係を含みます。',
+                        tags: [{ label: 'STEP 01より', cls: '' }, { label: '承認済み', cls: 'success' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-mvp/phase-XX.md',
+                        desc: '実装中の個別フェーズファイル（例：phase-04-p2p-transfer-engine.md）— 要件、関連ファイル、実装手順、成功基準を含みます。',
+                        tags: [{ label: 'STEP 01より', cls: '' }, { label: 'フェーズ毎', cls: '' }]
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/plan-review-checklist-260605.md',
+                        path: 'plans/reports/plan-review-checklist-260605.md',
+                        desc: '人間承認ゲートのサインオフ — 承認済みステータスがTDDステップ解放の必須条件となります。',
+                        tags: [{ label: 'ゲート', cls: 'priority' }, { label: '必須', cls: 'priority' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/system-architecture.md',
+                        path: 'docs/system-architecture.md',
+                        desc: 'アーキテクチャリファレンス：サービストポロジ、イベントバス、DB所有権 — TDD実装者が目標設計との整合性確認に使用いたします。',
+                        tags: [{ label: 'STEP 01より', cls: '' }]
+                    }
+                ],
+                agents: ['Testerエージェント（RED担当）', 'Developerエージェント（GREEN担当）', 'リファクタリング工程'],
+                outputs: [
+                    {
+                        type: 'code', name: 'src/services/transfer-service/transfer.service.ts',
+                        desc: 'コアロジック：冪等性チェック（Redis SETNX）→ 送金者ウォレットから引落 → 受取人ウォレットへ入金 → Kafkaイベント発行。PostgreSQL SELECT FOR UPDATEによりアトミック性を担保いたします。',
+                        tags: [{ label: '184 LOC', cls: '' }, { label: 'NestJS', cls: '' }],
+                        preview: '<span class="pk">async</span> <span class="pv">transfer</span>(dto: TransferDto, idemKey: <span class="pk">string</span>) {\n  <span class="pc">// 1. 冪等性ガード (Redis SETNX, 24時間TTL)</span>\n  <span class="pk">const</span> locked = <span class="pk">await</span> redis.setnx(`tx:${idemKey}`, <span class="pv">"1"</span>);\n  <span class="pk">if</span> (!locked) <span class="pk">return</span> <span class="pk">await</span> <span class="pv">this</span>.findExisting(idemKey);\n\n  <span class="pc">// 2. アトミックな引落・入金 (FOR UPDATE)</span>\n  <span class="pk">return</span> <span class="pk">await</span> <span class="pv">this</span>.db.transaction(<span class="pk">async</span> (tx) =&gt; {\n    <span class="pk">await</span> tx.<span class="pv">debitWallet</span>(dto.fromId, dto.amount);\n    <span class="pk">await</span> tx.<span class="pv">creditWallet</span>(dto.toId, dto.amount);\n    <span class="pk">await</span> kafka.<span class="pv">emit</span>(<span class="pv">"transfer.completed"</span>, ...);\n  });\n}'
+                    },
+                    {
+                        type: 'code', name: 'src/services/payment-service/sepay-adapter.ts',
+                        desc: 'Sepay VietQR生成 + 銀行Webhook受信。HMAC-SHA256署名検証、VietQR EMVフォーマット解析、指数バックオフによるリトライを実装。',
+                        tags: [{ label: '142 LOC', cls: '' }, { label: 'Sepay', cls: '' }]
+                    },
+                    {
+                        type: 'code', name: 'src/services/kyc-service/vnpt-ekyc.adapter.ts',
+                        desc: 'VNPT eKYC連携：CMND／CCCD OCR + 顔照合 + 生体検出。KYCデータは保存時にAES-256-GCMで暗号化いたします。',
+                        tags: [{ label: 'AES-256', cls: 'success' }]
+                    },
+                    {
+                        type: 'code', name: 'src/api/v1/transfers.controller.ts',
+                        desc: 'POST /api/v1/transfers・GET /api/v1/transfers/:id・GET /api/v1/transfers（ページング履歴）。',
+                        tags: [{ label: 'REST API', cls: '' }]
+                    },
+                    {
+                        type: 'code', name: 'migrations/20260505_001_create_wallets_table.sql',
+                        desc: '複式簿記台帳パターンによるwallets + transactionsテーブル作成、user_id + created_atインデックスを設定。',
+                        preview: '<span class="pk">CREATE TABLE</span> wallets (\n  id           <span class="pv">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,\n  user_id      <span class="pv">UUID NOT NULL REFERENCES users(id)</span>,\n  balance      <span class="pv">BIGINT NOT NULL DEFAULT 0 CHECK (balance &gt;= 0)</span>,\n  currency     <span class="pv">CHAR(3) NOT NULL DEFAULT \'VND\'</span>,\n  status       <span class="pv">wallet_status NOT NULL DEFAULT \'active\'</span>,\n  created_at   <span class="pv">TIMESTAMPTZ NOT NULL DEFAULT NOW()</span>,\n  <span class="pk">UNIQUE</span> (user_id, currency)\n);'
+                    },
+                    {
+                        type: 'code', name: 'mobile/screens/TransferScreen.tsx',
+                        desc: 'React Native画面：電話番号／QR選択、VND表記の金額入力、生体認証確認（Face ID／指紋）、Lottie完了アニメーション。',
+                        tags: [{ label: 'RN + Expo', cls: '' }, { label: '生体認証', cls: '' }]
+                    },
+                    {
+                        type: 'code', name: 'mobile/screens/QRScanScreen.tsx',
+                        desc: 'カメラ + Vision CameraでVietQR EMVをスキャンし、加盟店情報を解析、確認画面へ遷移いたします。',
+                        tags: [{ label: 'VietQR EMV', cls: '' }]
+                    },
+                    {
+                        type: 'code', name: 'config/.env.production.encrypted',
+                        desc: '本番シークレット：DB認証情報、Sepay APIキー、VNPT eKYCトークン、FCM／APNsキー。AWS KMSで暗号化されています。',
+                        tags: [{ label: 'AWS KMS', cls: 'success' }]
+                    },
+                    {
+                        type: 'test', name: 'tests/unit/transfer-service.spec.ts',
+                        desc: '47件のユニットテストでカバー：冪等性リプレイ、二重支払い防止、残高オーバーフロー、通貨不一致、競合状態。',
+                        tags: [{ label: '47テスト', cls: '' }, { label: '96%カバレッジ', cls: 'success' }],
+                        preview: '<span class="pk">describe</span>(<span class="pv">"TransferService"</span>, () =&gt; {\n  <span class="pk">it</span>(<span class="pv">"同一冪等キーでのリトライ時に二重支払いを防止"</span>, ...);\n  <span class="pk">it</span>(<span class="pv">"受取人ウォレットがロックされた際にロールバック"</span>, ...);\n  <span class="pk">it</span>(<span class="pv">"日次上限（1億VND）超の金額を拒否"</span>, ...);\n  <span class="pk">it</span>(<span class="pv">"コミット後にtransfer.completedイベントを発行"</span>, ...);\n  <span class="pk">it</span>(<span class="pv">"SELECT FOR UPDATEによる同時送金処理"</span>, ...);\n});\n\n<span class="pc">// 合格: 47/47 · カバレッジ: 行96.2%、分岐91%</span>'
+                    },
+                    {
+                        type: 'test', name: 'tests/integration/sepay-webhook.spec.ts',
+                        desc: 'Webhook署名検証（HMAC有効／無効）、冪等性、リプレイ攻撃対策のテスト。',
+                        tags: [{ label: '12テスト', cls: '' }]
+                    },
+                    {
+                        type: 'test', name: 'tests/e2e/p2p-transfer-happy-path.detox.ts',
+                        desc: 'Detox E2EテストをiOS Simulator + Android Emulatorで実施：ログイン → PIN入力 → 受取人検索 → 5万VND入力 → 生体認証 → 完了画面検証。',
+                        tags: [{ label: 'iOS + Android', cls: '' }]
+                    },
+                    {
+                        type: 'test', name: 'tests/load/transfer-throughput.k6.js',
+                        desc: 'k6負荷テスト：1,000同時ユーザー、60秒ランプアップ・結果：p50 87ms・p95 184ms・p99 312ms・エラー率0%。',
+                        tags: [{ label: 'p95: 184ms', cls: 'success' }, { label: 'エラー0件', cls: 'success' }]
+                    },
+                    {
+                        type: 'test', name: 'coverage/lcov-report/index.html',
+                        desc: '総カバレッジ：行91.4%・分岐87.2%・関数94.8%。最低モジュール：notification-service（76%）。',
+                        tags: [{ label: '行91.4%', cls: 'success' }]
+                    },
+                    {
+                        type: 'test', name: 'plans/reports/tester-260605-mvp-test-results.md',
+                        desc: '合計：220テスト・合格218・失敗2件（transfer-serviceで2ユーザーが同一受取人へ同時送金した際の競合状態）。推奨対応：SELECT FOR UPDATE追加。',
+                        tags: [{ label: '218/220合格', cls: 'warn' }, { label: '失敗2件', cls: 'warn' }]
+                    }
+                ]
+            },
+            '3': {
+                num: '03', colorClass: 'step-4', title: 'コードレビュー',
+                description: 'Reviewerエージェントがコード品質、OWASP Top 10 + STRIDEセキュリティ、性能ボトルネックを監査いたします。14件の指摘事項（うち高3件）を検出 — 主要なものは、transfer-serviceの競合状態、履歴クエリのSQLインジェクションリスク、内部サービス間でのTLS 1.2未強制となります。',
+                inputs: [
+                    {
+                        type: 'code', name: '実装ソースコード',
+                        desc: 'STEP 02 TDDで作成された全コード（8フェーズ・47コミット）— サービス + テスト + マイグレーション + IaC。',
+                        tags: [{ label: 'STEP 02より', cls: '' }, { label: '約124k LOC', cls: '' }]
+                    },
+                    {
+                        type: 'test', name: 'plans/reports/tester-260605-mvp-test-results.md',
+                        path: 'plans/reports/tester-260605-mvp-test-results.md',
+                        desc: 'テスト結果218/220合格、行カバレッジ96.2% — Reviewerが未カバー部分の重点監査に使用いたします。',
+                        tags: [{ label: 'STEP 02より', cls: '' }, { label: 'カバレッジ96%', cls: 'success' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/system-architecture.md',
+                        path: 'docs/system-architecture.md',
+                        desc: 'アーキテクチャリファレンス — Reviewerがコードと設計（サービス境界、イベントフロー）の整合性を検証いたします。',
+                        tags: [{ label: 'STEP 01より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'OWASP Top 10 + STRIDEチェックリスト',
+                        desc: '標準セキュリティ監査フレームワーク — 自動エージェントが既知の脆弱性パターンをスキャンいたします。',
+                        tags: [{ label: '標準搭載', cls: '' }]
+                    }
+                ],
+                agents: ['コードレビューエージェント', 'セキュリティ監査エージェント'],
+                outputs: [
+                    {
+                        type: 'review', name: 'plans/reports/code-review-260605-vietpay-mvp.md',
+                        desc: '14件の指摘（高3件・中6件・低5件）。高：ウォレット更新の競合状態、リトライパスでの冪等性欠如、履歴のN+1クエリ。',
+                        tags: [{ label: '高3件', cls: 'warn' }, { label: '中6件', cls: '' }, { label: '低5件', cls: '' }],
+                        preview: '<span class="pc"># 指摘事項サマリ</span>\n\n<span class="pk">[HIGH-01]</span> <span class="pv">transfer.service.ts:67</span>\n  競合状態：同一ウォレットへの同時送金2件で\n  二重入金が発生する可能性。SELECT FOR UPDATEが必要。\n\n<span class="pk">[HIGH-02]</span> <span class="pv">transactions.repository.ts:42</span>\n  クエリ内の文字列連結 → SQLインジェクションリスク\n  対応：パラメータ化クエリへ変更。\n\n<span class="pk">[HIGH-03]</span> <span class="pv">api/transfers.controller.ts:23</span>\n  リトライパスでIdempotency-Key未確認\n  → 送金が重複する可能性あり。'
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/security-audit-260605.md',
+                        desc: 'OWASP Top 10 + STRIDE + PCI-DSSスキャン。2件の指摘：A01管理エンドポイントのアクセス制御不備、サービス間通信のTLS 1.2未強制。',
+                        tags: [{ label: 'OWASP', cls: '' }, { label: 'PCI-DSS', cls: '' }, { label: 'STRIDE', cls: '' }],
+                        preview: '<span class="pc"># セキュリティ指摘事項</span>\n\n<span class="pk">[CRITICAL]</span> <span class="pv">A01 アクセス制御の不備</span>\n  GET /admin/usersがadminロールを未確認\n  → 認証済みユーザーがPIIへアクセス可能。\n\n<span class="pk">[HIGH]</span> <span class="pv">内部通信の脆弱性</span>\n  サービス間通信でTLS 1.2+未強制\n  → VPC内でMITM攻撃のリスク。\n\n<span class="pc">// AML/KYC: ✓ 合格</span>\n<span class="pc">// PCI-DSS Level 1: ✓ 合格</span>'
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/performance-260605.md',
+                        desc: 'ボトルネック分析：GET /transfersでN+1クエリ（送金1件ごとにユーザー取得クエリが発生）。推奨：eager-load + カーソルページネーション。',
+                        tags: [{ label: 'N+1検出', cls: 'warn' }],
+                        preview: '<span class="pc"># 性能ボトルネック</span>\n\n<span class="pk">[1]</span> <span class="pv">GET /api/v1/transfers</span>\n  N+1クエリ：transfers取得1件 + users取得N件\n  現状：<span class="pv">送金50件で約840ms p95</span>\n  対応：<span class="pv">JOIN users + カーソルページネーション</span>\n  目標：<span class="pv">p95 150ms未満</span>\n\n<span class="pk">[2]</span> <span class="pv">ウォレット残高取得</span>\n  ホットパスにキャッシュなし → 全件DB照会\n  対応：<span class="pv">Redisキャッシュ30秒TTL + 取引時に無効化</span>'
+                    }
+                ]
+            },
+            '4': {
+                num: '04', colorClass: 'step-5', title: '👤 人間最終レビュー',
+                description: '人間レビュアー（テックリード + プロダクトオーナー）が、デプロイ承認前にSTEP 00〜04の全AI成果物を総合的に評価いたします。本番投入可否を判定する最終ゲートとなります — ビジネス適合性の検証、品質の妥当性確認、本番リスク評価を実施します。却下時は該当フェーズへ差戻し修正、承認時はSTEP 05納品が解放されます。',
+                inputs: [
+                    {
+                        type: 'review', name: 'plans/reports/code-review-260605-vietpay-mvp.md',
+                        path: 'plans/reports/code-review-260605-vietpay-mvp.md',
+                        desc: 'コードレビュー指摘事項 — 14件中、高3件はクローズ済み。',
+                        tags: [{ label: 'STEP 03より', cls: '' }]
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/security-audit-260605.md',
+                        path: 'plans/reports/security-audit-260605.md',
+                        desc: 'セキュリティ監査 — OWASP Top-10クリーン、AML／KYC合格、PCI-DSS Level 1準備完了。',
+                        tags: [{ label: 'STEP 03より', cls: '' }]
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/performance-260605.md',
+                        path: 'plans/reports/performance-260605.md',
+                        desc: '性能監査 — 全p95 SLA達成（送金720ms、残高12ms）。',
+                        tags: [{ label: 'STEP 03より', cls: '' }]
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/qa-acceptance-test.md',
+                        path: 'plans/reports/qa-acceptance-test.md',
+                        desc: 'QA受入テスト — 69/70テストケース合格（1件はスコープ対象外）。',
+                        tags: [{ label: 'STEP 03より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/reports/business-fit-validation.md',
+                        path: 'plans/reports/business-fit-validation.md',
+                        desc: 'PRD整合性 + ユーザーテストNPS 58 — ビジネス適合性検証済み。',
+                        tags: [{ label: 'STEP 00より', cls: '' }]
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/production-risk-assessment.md',
+                        path: 'plans/reports/production-risk-assessment.md',
+                        desc: '本番リスク管理表 — 中3件、低2件、全件監視 + オートスケールにて対策済み。',
+                        tags: [{ label: '集約版', cls: '' }]
+                    }
+                ],
+                agents: ['人間テックリード', '人間プロダクトオーナー', '人間QAリード'],
+                outputs: [
+                    {
+                        type: 'review', name: 'plans/reports/human-final-review-260605.md',
+                        desc: '人間レビュアーのサインオフチェックリスト：業務適合性・アーキテクチャ妥当性・コード品質・テストカバレッジ・セキュリティ体制・本番リスク・ロールバック計画。',
+                        tags: [{ label: '承認済み', cls: 'success' }, { label: '7セクション', cls: '' }, { label: 'サインオフゲート', cls: 'priority' }],
+                        preview: '<span class="pc"># 人間最終レビュー · VietPay MVP</span>\n\n<span class="pk">レビュアー:</span>\n  - <span class="pv">テックリード</span>      (Long N.)   ✓ 承認\n  - <span class="pv">プロダクトオーナー</span> (Linh M.)   ✓ 承認\n  - <span class="pv">QAリード</span>          (Tuấn P.)   ✓ 承認\n\n<span class="pc">## サインオフ項目</span>\n  ✓ <span class="pk">[1]</span> 業務適合性          <span class="pv">— PRDスコープと一致</span>\n  ✓ <span class="pk">[2]</span> アーキテクチャ      <span class="pv">— マイクロサービス妥当</span>\n  ✓ <span class="pk">[3]</span> コード品質          <span class="pv">— カバレッジ96%・クリーン</span>\n  ✓ <span class="pk">[4]</span> テストカバレッジ    <span class="pv">— 218/220合格</span>\n  ✓ <span class="pk">[5]</span> セキュリティ体制    <span class="pv">— OWASPクリーン</span>\n  ✓ <span class="pk">[6]</span> 本番リスク          <span class="pv">— 低・監視中</span>\n  ✓ <span class="pk">[7]</span> ロールバック計画    <span class="pv">— ドキュメント化済み</span>\n\n<span class="pk">判定:</span> <span class="pv">デプロイ実行可</span>'
+                    },
+                    {
+                        type: 'doc', name: 'plans/reports/business-fit-validation.md',
+                        desc: 'POによるスコープ整合性検証：P0ユーザーストーリー8件全て実装・乖離0件・社内チーム向けプリローンチNPS調査4.6/5。',
+                        tags: [{ label: '8/8 完了', cls: 'success' }, { label: 'NPS 4.6', cls: 'success' }]
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/production-risk-assessment.md',
+                        desc: 'テックリードによる本番リスク評価：中レベルのリスク3件 — 想定超過のピーク負荷、Sepay性能劣化、eKYC手動審査キューの溢れ。対応策準備済み。',
+                        tags: [{ label: '中リスク3件', cls: 'warn' }, { label: '対策済み', cls: 'success' }],
+                        preview: '<span class="pc"># 本番リスク評価</span>\n\n<span class="pk">[MED-01]</span> <span class="pv">想定超過のピーク負荷</span>\n  ローンチ初日のトラフィック予測困難\n  <span class="pk">対策:</span> ECSオートスケール2→20 + サーキットブレーカー\n\n<span class="pk">[MED-02]</span> <span class="pv">Sepay性能劣化</span>\n  SepaySandbox SLA 99% — 本番で悪化の可能性\n  <span class="pk">対策:</span> キューイング + リトライ + ユーザー向け劣化メッセージ\n\n<span class="pk">[MED-03]</span> <span class="pv">eKYC審査キュー</span>\n  5-8%が手動審査 — ピーク時に溢れる可能性\n  <span class="pk">対策:</span> 24時間SLA + 滞留100件超で自動アラート'
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/qa-acceptance-test.md',
+                        desc: 'QAリードによる最終受入テスト：TestFlight + Play Store社内配信で24ユーザーストーリーをE2E実行。24/24合格、P0／P1バグゼロ。',
+                        tags: [{ label: '24/24合格', cls: 'success' }, { label: 'P0／P1ゼロ', cls: 'success' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/reports/rollback-plan.md',
+                        desc: 'ローンチ失敗時のロールバック手順：機能フラグキルスイッチ・CDKスタックロールバック・DBポイントインタイムリストア・ユーザー向け通知テンプレート。',
+                        tags: [{ label: 'RTO 15分以内', cls: 'success' }, { label: 'ドキュメント化済', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/reports/go-no-go-meeting-minutes.md',
+                        desc: 'テックリード、PO、QAリード、コンプライアンス担当による最終Go/No-Go会議議事録。判定：GO。アクション：初期48時間のハイパーケア監視。',
+                        tags: [{ label: 'GO ✓', cls: 'success' }]
+                    }
+                ]
+            },
+            '5': {
+                num: '05', colorClass: 'step-6', title: '納品・デプロイ',
+                description: '47件のコミットをConventional Commits形式で自動コミット。サマリ + テスト計画 + スクリーンショット付きのPR #142を作成。ECS（シンガポール + フランクフルトリージョン）へデプロイし、iOS TestFlightとPlay Store社内配信トラックへ公開、変更履歴・ロードマップを同期いたします。',
+                inputs: [
+                    {
+                        type: 'review', name: 'plans/reports/human-final-review-260605.md',
+                        path: 'plans/reports/human-final-review-260605.md',
+                        desc: 'テックリード + PO + QAリードによる最終サインオフ — デプロイ解放の必須条件となります。',
+                        tags: [{ label: 'STEP 04より', cls: '' }, { label: '承認済み', cls: 'success' }, { label: '必須', cls: 'priority' }]
+                    },
+                    {
+                        type: 'code', name: '承認済みコードベース + テスト',
+                        desc: 'レビュー、セキュリティ、性能の各監査を通過したコード — リリース準備完了状態です。',
+                        tags: [{ label: 'STEP 02-03より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/reports/rollback-plan.md',
+                        path: 'plans/reports/rollback-plan.md',
+                        desc: 'ロールバック計画 — トリガー条件、手順、決裁権限を定義。SREオンコール担当者は切替前に必読となります。',
+                        tags: [{ label: 'STEP 04より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/reports/go-no-go-meeting-minutes.md',
+                        path: 'plans/reports/go-no-go-meeting-minutes.md',
+                        desc: 'Go/No-Go会議議事録 — ローンチ枠を2026-06-05 22:00 ICTに確定。',
+                        tags: [{ label: 'STEP 04より', cls: '' }]
+                    },
+                    {
+                        type: 'user', name: 'デプロイ用認証情報・シークレット',
+                        desc: 'AWS IAM（ECS、RDS）、App Store Connect APIキー、Play Storeサービスアカウント、Sentry／Datadogトークン — シークレットマネージャー経由で提供。',
+                        tags: [{ label: 'インフラ', cls: '' }, { label: '必須', cls: 'priority' }]
+                    }
+                ],
+                agents: ['Git Managerエージェント', 'DevOpsエージェント', 'Docs Managerエージェント'],
+                outputs: [
+                    {
+                        type: 'deploy', name: 'git log（47コミット）',
+                        desc: 'Conventional Commits：feat 24件・fix 11件・refactor 6件・test 4件・docs 2件。AI関連の記述は含めません。',
+                        tags: [{ label: '47コミット', cls: '' }, { label: 'Conventional', cls: 'success' }],
+                        preview: '<span class="pv">feat(transfer)</span>: 冪等キー対応のP2P送金機能を追加\n<span class="pv">feat(qr)</span>:       Sepay VietQR生成機能を統合\n<span class="pv">feat(kyc)</span>:      生体検出付きVNPT eKYCアダプタを実装\n<span class="pv">fix(security)</span>: transactionsリポジトリをパラメータ化クエリへ修正\n<span class="pv">fix(transfer)</span>: 競合状態解消のためSELECT FOR UPDATEを追加\n<span class="pv">refactor</span>:     ウォレット台帳を共通モジュールへ抽出\n<span class="pv">test(e2e)</span>:    QR決済フローのDetoxテストスイートを追加'
+                    },
+                    {
+                        type: 'deploy', name: 'GitHub PR #142',
+                        desc: 'PRタイトル：「feat: VietPay MVP — P2P送金 + VietQR決済」。本文にサマリ、テスト計画チェックリスト、デモ動画、iOS／Androidスクリーンショットを記載。',
+                        tags: [{ label: 'PR #142', cls: '' }, { label: '+8.4k −1.2k', cls: '' }, { label: 'レビュアー12名', cls: '' }]
+                    },
+                    {
+                        type: 'deploy', name: '本番デプロイ',
+                        desc: 'バックエンド：ECS Fargate（ap-southeast-1 + eu-central-1）・RDS Multi-AZ・ElastiCache。モバイル：TestFlightビルド#142・Play Store社内配信トラック。',
+                        tags: [{ label: 'v1.0.0', cls: 'success' }, { label: '全項目正常', cls: 'success' }],
+                        preview: '<span class="pc"># デプロイステータス</span>\n\n<span class="pk">バックエンド (ECS Fargate)</span>\n  ap-southeast-1: <span class="pv">✓ 正常 (12/12タスク)</span>\n  eu-central-1:   <span class="pv">✓ 正常 (8/8タスク)</span>\n\n<span class="pk">データベース (RDS PostgreSQL 16)</span>\n  プライマリ:     <span class="pv">✓ ap-southeast-1a</span>\n  レプリカ:       <span class="pv">✓ ap-southeast-1b</span>\n\n<span class="pk">モバイル</span>\n  iOS:            <span class="pv">TestFlightビルド #142</span>\n  Android:        <span class="pv">Play Store社内配信トラック</span>\n\n<span class="pk">スモークテスト:</span> <span class="pv">✓ 24/24合格</span>'
+                    },
+                    {
+                        type: 'doc', name: 'docs/project-changelog.md',
+                        desc: 'v1.0.0リリースノート：新機能8件、セキュリティ修正3件、性能改善（履歴エンドポイント p95 840ms → 142ms）。',
+                        tags: [{ label: 'v1.0.0', cls: 'success' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/development-roadmap.md',
+                        desc: 'Phase 1（MVP）完了マーク・Phase 2（請求書支払い + チャージ + 貯金目標）次スプリントから着手・Phase 3（投資機能）はバックログ。',
+                        tags: [{ label: 'Phase 1 ✓', cls: 'success' }, { label: 'Phase 2 →', cls: '' }]
+                    }
+                ]
+            }
+        };
+
+        const BROWNFIELD_STEP_DATA = {
+            '0': {
+                num: '00', colorClass: 'step-7', title: '📚 ドキュメント標準化',
+                description: 'Brownfield固有のエントリーステップとなります。後続パイプラインがGreenfieldと同様に進行できるよう、全ドキュメントを標準化いたします。AIがお客様提供ドキュメント（要件ブリーフ、契約書）を解析し、リバースエンジニアリングエージェントがV1コードベースからAs-Isアーキテクチャを抽出、Gap AnalyzerがAs-IsとTo-Beを比較いたします。アウトプットは標準化ドキュメント一式（SRS・アーキテクチャ・ワイヤーフレーム・ギャップ分析）— Greenfield STEP 00と同フォーマットで統一し、STEP 01計画策定が一貫した処理を行えるようにいたします。',
+                agents: ['Doc Parserエージェント', 'Repomixエージェント', 'リバースエンジニアリングエージェント', 'Gap Analyzerエージェント', 'Change Impact Mapper'],
+                inputs: [
+                    {
+                        type: 'user', name: 'customer-input/v2-requirements-brief.docx',
+                        desc: 'お客様（VietPay V1のPO）からのブリーフ：「V2は電気・インターネット・モバイル料金支払いとチャージ機能の追加が必要。日次5万取引。第3四半期ローンチ予定。」',
+                        tags: [{ label: 'お客様ドキュメント', cls: '' }, { label: '必須', cls: 'priority' }]
+                    },
+                    {
+                        type: 'code', name: 'レガシーコードベースV1（全リポジトリ）',
+                        desc: 'VietPay V1のモノレポソースコード — Repomixエージェントが単一コンテキストにパッケージ化し、リバースエンジニアリングがアーキテクチャを抽出いたします。',
+                        tags: [{ label: 'Brownfieldインプット', cls: '' }, { label: '約124k LOC', cls: '' }]
+                    },
+                    {
+                        type: 'user', name: 'V1メンテナへのヒアリング',
+                        desc: 'V1チームの暗黙知 — ボトルネック、課題、隠れた依存契約。任意ですが、ギャップ分析の品質向上に寄与いたします。',
+                        tags: [{ label: '任意', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: '既存V1ドキュメント（存在する場合）',
+                        desc: '既存ドキュメント（アーキテクチャ、ランブック、ポストモーテム等）— Doc Parserが取り込み、リバースエンジニアリングを補完いたします。',
+                        tags: [{ label: '任意', cls: '' }]
+                    }
+                ],
+                outputs: [
+                    {
+                        type: 'user', name: 'customer-input/v2-requirements-brief.docx',
+                        desc: 'お客様（VietPayのPO）からのブリーフ：「V2は電気・インターネット・モバイル料金支払いとチャージ機能の追加が必要。トランザクション量推定 日次5万件。第3四半期ローンチ。」',
+                        tags: [{ label: 'お客様ドキュメント', cls: '' }, { label: 'インプット', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/codebase-summary.md',
+                        path: 'docs/codebase-summary.md',
+                        desc: 'V1コードベース概要：TypeScript 124k LOC、6マイクロサービス（auth、kyc、wallet、transfer、payment、notification）、89 APIエンドポイント、47 DBテーブル。',
+                        tags: [{ label: '124k LOC', cls: '' }, { label: '6サービス', cls: '' }, { label: '稼働4年', cls: '' }],
+                        preview: '<span class="pc"># VietPay V1 — コードベース概要</span>\n\n<span class="pk">使用言語:</span>\n  - TypeScript: <span class="pv">102k LOC (82%)</span>\n  - SQL:        <span class="pv">14k LOC</span>\n  - YAML:       <span class="pv">8k LOC (CDK + k8s)</span>\n\n<span class="pk">サービス (NestJS):</span>\n  - auth-service          <span class="pv">12k LOC · 直近編集3日前</span>\n  - kyc-service           <span class="pv">8k LOC · 安定稼働</span>\n  - wallet-service        <span class="pv">18k LOC · ⚠ Godモジュール</span>\n  - transfer-service      <span class="pv">26k LOC · ホットパス</span>\n  - payment-service       <span class="pv">22k LOC · Sepay連携</span>\n  - notification-service  <span class="pv">9k LOC · 安定稼働</span>'
+                    },
+                    {
+                        type: 'doc', name: 'docs/architecture-as-is.md',
+                        path: 'docs/architecture-as-is.md',
+                        desc: 'As-Isアーキテクチャ図 + 統合マップ + データフロー。wallet-serviceとtransfer-service間でDB共有（アンチパターン）を検出、bill-paymentモジュールは未実装と判明いたしました。',
+                        tags: [{ label: 'As-Is', cls: '' }, { label: '⚠ DB共有', cls: 'warn' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/srs-v2.md',
+                        path: 'docs/srs-v2.md',
+                        desc: 'お客様ブリーフから標準化したSRS V2 — Greenfield SRSと同フォーマットです。新規機能要件8件（請求書支払い4プロバイダ、モバイルチャージ3キャリア）+ 非機能要件5件 + SBV／AML制約事項。',
+                        tags: [{ label: '機能要件8件', cls: '' }, { label: '非機能要件5件', cls: '' }, { label: '標準化済み', cls: 'success' }]
+                    },
+                    {
+                        type: 'design', name: 'docs/wireframes/bill-payment-flow.md',
+                        desc: '新規2モジュール（請求書支払い + モバイルチャージ）の標準化ワイヤーフレーム。V1のデザインシステムを再利用し、Greenfieldワイヤーフレームと同フォーマットで統一しております。',
+                        tags: [{ label: 'ワイヤーフレーム', cls: '' }, { label: '11画面', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/gap-analysis.md',
+                        path: 'docs/gap-analysis.md',
+                        desc: 'As-Is対To-Beのギャップ分析：12件のギャップを特定 — 新規構築モジュール4件、既存サービス拡張3件、移行対応2件（DB共有）、軽微改善3件。',
+                        tags: [{ label: 'ギャップ12件', cls: '' }, { label: '新規4モジュール', cls: '' }, { label: '移行2件', cls: 'warn' }],
+                        preview: '<span class="pc"># ギャップ分析 · V1 → V2</span>\n\n<span class="pk">[GAP-01] 請求書支払いモジュール</span>\n  As-is: ❌ 未実装\n  To-be: ✅ 電気 + インターネット + モバイル + 水道\n  <span class="pk">種別:</span> 新規モジュール\n\n<span class="pk">[GAP-02] モバイルチャージ</span>\n  As-is: ❌ 未実装\n  To-be: ✅ Viettel／Vinaphone／Mobifone\n  <span class="pk">種別:</span> 新規モジュール\n\n<span class="pk">[GAP-03] DB共有アンチパターン</span>\n  As-is: walletとtransferが`vietpay`スキーマを共有\n  To-be: サービス毎に独立DB\n  <span class="pk">種別:</span> 移行対応（高リスク）'
+                    },
+                    {
+                        type: 'doc', name: 'docs/change-impact-map.md',
+                        desc: 'V2で影響を受けるモジュール／エンドポイント／DBテーブル：23エンドポイント変更、8 DBテーブル移行、4サービス再構成。',
+                        tags: [{ label: '23エンドポイント', cls: '' }, { label: '8テーブル', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/tech-debt-inventory.md',
+                        desc: '技術的負債一覧：Godクラス14件（500 LOC超）、廃止予定の依存関係23件、クリティカルモジュール4件のテストカバレッジ0%。STEP 01のリスク管理表へのインプットとなります。',
+                        tags: [{ label: 'Godクラス14件', cls: 'warn' }, { label: 'テスト0% · 4モジュール', cls: 'warn' }]
+                    }
+                ]
+            },
+            '1': {
+                num: '01', colorClass: 'step-2', title: '計画策定 + 人間承認ゲート',
+                description: 'Strategistエージェントが移行戦略を提案いたします。V1のwallet／transfer DB共有問題に対しては、Strangler Figパターン（2週間のデュアルライト後にカットオーバー）を採用いたします。リスク管理表は回帰の発生しやすい箇所に注力いたします。**人間承認ゲート**：テックリード + PM + お客様SMEが、コード着手前に戦略を承認いたします。',
+                agents: ['移行戦略エージェント', 'リスク分析エージェント', 'テストカバレッジ計画エージェント', '👤 人間テックリード', '👤 人間お客様SME'],
+                inputs: [
+                    {
+                        type: 'doc', name: 'docs/srs-v2.md',
+                        path: 'docs/srs-v2.md',
+                        desc: 'お客様ブリーフから標準化したSRS V2 — 新規機能要件8件 + 非機能要件5件 + SBV制約事項。',
+                        tags: [{ label: 'Brownfield STEP 00より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/architecture-as-is.md',
+                        path: 'docs/architecture-as-is.md',
+                        desc: 'As-Isアーキテクチャ：6サービス、DB共有アンチパターン、統合マップ。Strategistが移行アプローチ選定に使用いたします。',
+                        tags: [{ label: 'Brownfield STEP 00より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/gap-analysis.md',
+                        path: 'docs/gap-analysis.md',
+                        desc: '12件のギャップ：新規モジュール4件、拡張3件、移行2件 — フェーズ計画へのインプットとなります。',
+                        tags: [{ label: 'Brownfield STEP 00より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/change-impact-map.md',
+                        path: 'docs/change-impact-map.md',
+                        desc: '影響を受けるモジュール／エンドポイント／DBテーブル — リスク分析エージェントが回帰ホットスポット特定に使用いたします。',
+                        tags: [{ label: 'Brownfield STEP 00より', cls: '' }]
+                    },
+                    {
+                        type: 'doc', name: 'docs/tech-debt-inventory.md',
+                        path: 'docs/tech-debt-inventory.md',
+                        desc: '技術的負債：Godクラス14件、4モジュールでテストカバレッジ0% — テストカバレッジ計画エージェントが特性テストを優先付けいたします。',
+                        tags: [{ label: 'Brownfield STEP 00より', cls: '' }, { label: 'リスクインプット', cls: 'warn' }]
+                    }
+                ],
+                outputs: [
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-v2/migration-plan.md',
+                        path: 'plans/260505-1100-vietpay-v2/migration-plan.md',
+                        desc: 'マスター移行計画：8週間、DB移行はStrangler Fig方式、14フェーズタスク、並列書込戦略、カットオーバー計画を含みます。',
+                        tags: [{ label: '8週間', cls: '' }, { label: 'Strangler Fig', cls: '' }, { label: 'マスター', cls: 'priority' }],
+                        preview: '<span class="pc"># V1 → V2 移行計画</span>\n\n<span class="pk">戦略:</span> <span class="pv">Strangler Fig + デュアルライト</span>\n\n<span class="pc">## 週次計画</span>\n  <span class="pk">W1-2:</span> <span class="pv">既存wallet+transferの特性テスト整備</span>\n  <span class="pk">W3-4:</span> <span class="pv">新規wallet-DBスキーマ構築（独立）</span>\n  <span class="pk">W5:</span>   <span class="pv">デュアルライト有効化・整合性監視</span>\n  <span class="pk">W6:</span>   <span class="pv">読込トラフィック 5% → 25% → 100%切替</span>\n  <span class="pk">W7:</span>   <span class="pv">カットオーバー・旧DB読取専用化</span>\n  <span class="pk">W8:</span>   <span class="pv">旧DB削除 + 請求書支払い・チャージ機能リリース</span>'
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-v2/risk-register.md',
+                        desc: 'リスク14件：クリティカル3件（デュアルライトのデータ不整合、transfer内の回帰、ピーク時の性能劣化）。対応策と担当者を明記しております。',
+                        tags: [{ label: 'クリティカル3件', cls: 'warn' }, { label: '高6件', cls: '' }, { label: '全件対策済み', cls: 'success' }]
+                    },
+                    {
+                        type: 'doc', name: 'plans/260505-1100-vietpay-v2/test-coverage-plan.md',
+                        desc: 'リファクタリング前のカバレッジ確保計画：ホットパス（wallet、transfer）の行カバレッジ90%目標、legacy-mapper.tsの特性テストを整備いたします。',
+                        tags: [{ label: '90%目標', cls: '' }, { label: '特性テスト', cls: '' }]
+                    },
+                    {
+                        type: 'review', name: 'plans/reports/migration-plan-review-checklist.md',
+                        desc: '👤 人間承認ゲート成果物：テックリード + PM + お客様SMEが承認。8セクション（戦略妥当性、リスクカバレッジ、ロールバック計画、お客様整合性等）のサインオフを実施。',
+                        tags: [{ label: '承認済み', cls: 'success' }, { label: '人間承認ゲート', cls: 'priority' }, { label: 'お客様SME ✓', cls: 'success' }]
+                    }
+                ]
+            },
+            // STEP 02-05はGreenfieldと同一 — 下記でマージ
+        };
+        // Brownfield STEP 02-05はGreenfieldと完全に同一（STEP 00 + 01のみ異なる）。
+        // DRY原則：複製を避け、STEP_DATAを直接参照いたします。
+        BROWNFIELD_STEP_DATA['2'] = STEP_DATA['2'];
+        BROWNFIELD_STEP_DATA['3'] = STEP_DATA['3'];
+        BROWNFIELD_STEP_DATA['4'] = STEP_DATA['4'];
+        BROWNFIELD_STEP_DATA['5'] = STEP_DATA['5'];
+
+        let activePipeline = 'greenfield';
+        const PIPELINE_DATA = { greenfield: STEP_DATA, brownfield: BROWNFIELD_STEP_DATA };
+
+        function switchPipeline(name) {
+            if (name === activePipeline) return;
+            activePipeline = name;
+
+            document.querySelectorAll('.pipeline-tab').forEach(tab => {
+                const isActive = tab.dataset.pipeline === name;
+                tab.classList.toggle('active', isActive);
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+
+            document.querySelectorAll('.pipeline-greenfield').forEach(el => el.classList.toggle('hidden', name !== 'greenfield'));
+            document.querySelectorAll('.pipeline-brownfield').forEach(el => el.classList.toggle('hidden', name !== 'brownfield'));
+
+            const terminalTitle = document.getElementById('terminalTitle');
+            if (terminalTitle) terminalTitle.textContent = `workflow.pipeline — ${name} · ai-agent-orchestration`;
+
+            if (window.mermaid) {
+                const activeMermaid = document.querySelector(`.mermaid.pipeline-${name}`);
+                if (activeMermaid && !activeMermaid.dataset.processed) {
+                    runMermaidAndBind(activeMermaid, name);
+                }
+            }
+        }
+
+        document.querySelectorAll('.pipeline-tab').forEach(tab => {
+            tab.addEventListener('click', () => switchPipeline(tab.dataset.pipeline));
+        });
+
+        const modal = document.getElementById('stepModal');
+        const modalStepNum = document.getElementById('modalStepNum');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalAgents = document.getElementById('modalAgents');
+        const modalInputs = document.getElementById('modalInputs');
+        const modalOutputs = document.getElementById('modalOutputs');
+        const modalClose = document.getElementById('modalClose');
+
+        function openModal(stepKey, pipelineOverride) {
+            const pipeline = pipelineOverride || activePipeline;
+            const data = (PIPELINE_DATA[pipeline] || STEP_DATA)[stepKey];
+            if (!data) return;
+
+            modalStepNum.textContent = data.num;
+            modalStepNum.className = 'step-num ' + data.colorClass;
+            modalTitle.textContent = data.title;
+            modalDescription.textContent = data.description;
+
+            modalAgents.innerHTML = data.agents
+                .map(a => `<span class="agent-tag">▸ ${a}</span>`).join('');
+
+            const renderItem = o => {
+                const tagsHtml = (o.tags || []).map(t =>
+                    `<span class="output-tag ${t.cls || ''}">${escapeHtml(t.label)}</span>`
+                ).join('');
+                const metaHtml = tagsHtml ? `<div class="output-meta">${tagsHtml}</div>` : '';
+                const previewHtml = o.preview ? `<div class="output-preview">${o.preview}</div>` : '';
+                const viewBtn = o.path ? `<button class="output-view-btn" data-doc-path="${escapeHtml(o.path)}">📄 View document →</button>` : '';
+                return `
+                <li class="output-item">
+                    <span class="output-icon ${o.type}">${iconFor(o.type)}</span>
+                    <div class="output-content">
+                        <div class="output-name">${escapeHtml(o.name)}</div>
+                        <div class="output-desc">${escapeHtml(o.desc)}</div>
+                        ${metaHtml}
+                        ${previewHtml}
+                        ${viewBtn}
+                    </div>
+                </li>`;
+            };
+
+            const inputs = data.inputs || [];
+            modalInputs.innerHTML = inputs.length
+                ? inputs.map(renderItem).join('')
+                : '<li class="output-item" style="opacity:0.6;"><div class="output-content"><div class="output-desc">No prerequisite inputs — entry step.</div></div></li>';
+
+            modalOutputs.innerHTML = data.outputs.map(renderItem).join('');
+
+            modal.querySelectorAll('.output-view-btn').forEach(btn => {
+                btn.addEventListener('click', () => openDoc(btn.dataset.docPath));
+            });
+
+            closeDoc();
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            closeDoc();
+        }
+
+        const docViewer = document.getElementById('docViewer');
+        const docViewerPath = document.getElementById('docViewerPath');
+        const docViewerContent = document.getElementById('docViewerContent');
+        const docViewerBack = document.getElementById('docViewerBack');
+        const docViewerMain = document.getElementById('docViewerMain');
+        const docViewerTocList = document.getElementById('docViewerTocList');
+        const docViewerToc = document.getElementById('docViewerToc');
+        const docViewerToggleToc = document.getElementById('docViewerToggleToc');
+        const docViewerProgress = document.getElementById('docViewerProgress');
+        const stepModal = document.getElementById('stepModal');
+
+        if (window.marked) {
+            marked.setOptions({
+                gfm: true, breaks: false,
+                highlight: (code, lang) => {
+                    if (window.hljs && lang && hljs.getLanguage(lang)) {
+                        try { return hljs.highlight(code, { language: lang }).value; } catch (e) {}
+                    }
+                    return window.hljs ? hljs.highlightAuto(code).value : code;
+                }
+            });
+        }
+
+        function slugify(text) {
+            return String(text)
+                .toLowerCase()
+                .normalize('NFD')
+                .replaceAll(/[̀-ͯ]/g, '')
+                .replaceAll(/đ/g, 'd')
+                .replaceAll(/[^a-z0-9\s-]/g, '')
+                .trim()
+                .replaceAll(/\s+/g, '-')
+                .substring(0, 80) || 'section';
+        }
+
+        function buildTOC() {
+            const headings = docViewerContent.querySelectorAll('h1, h2, h3, h4');
+            docViewerTocList.innerHTML = '';
+            if (!headings.length) {
+                docViewerTocList.innerHTML = '<li class="doc-viewer-toc-empty">No sections</li>';
+                return [];
+            }
+            const usedIds = new Set();
+            const items = [];
+            headings.forEach(h => {
+                let id = slugify(h.textContent);
+                let unique = id, n = 2;
+                while (usedIds.has(unique)) unique = `${id}-${n++}`;
+                usedIds.add(unique);
+                h.id = unique;
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `#${unique}`;
+                a.textContent = h.textContent;
+                a.className = `toc-${h.tagName.toLowerCase()}`;
+                a.dataset.target = unique;
+                a.addEventListener('click', e => {
+                    e.preventDefault();
+                    const target = document.getElementById(unique);
+                    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    docViewerToc.classList.remove('open');
+                });
+                li.appendChild(a);
+                docViewerTocList.appendChild(li);
+                items.push({ id: unique, el: h, link: a });
+            });
+            return items;
+        }
+
+        function enhanceCodeBlocks() {
+            docViewerContent.querySelectorAll('pre').forEach(pre => {
+                const code = pre.querySelector('code');
+                if (!code) return;
+                const langMatch = (code.className || '').match(/language-(\w+)/);
+                const lang = langMatch ? langMatch[1] : '';
+                if (lang && lang !== 'mermaid') pre.dataset.lang = lang;
+
+                if (!pre.querySelector('.doc-viewer-copy-btn')) {
+                    const btn = document.createElement('button');
+                    btn.className = 'doc-viewer-copy-btn';
+                    btn.textContent = '⧉ Copy';
+                    btn.addEventListener('click', async () => {
+                        try {
+                            await navigator.clipboard.writeText(code.textContent);
+                            btn.textContent = '✓ Copied';
+                            btn.classList.add('copied');
+                            setTimeout(() => {
+                                btn.textContent = '⧉ Copy';
+                                btn.classList.remove('copied');
+                            }, 1500);
+                        } catch (e) {
+                            btn.textContent = '✗ Failed';
+                        }
+                    });
+                    pre.appendChild(btn);
+                }
+            });
+        }
+
+        function wrapTables() {
+            docViewerContent.querySelectorAll('table').forEach(table => {
+                if (table.parentElement && table.parentElement.classList.contains('doc-viewer-table-wrap')) return;
+                const wrap = document.createElement('div');
+                wrap.className = 'doc-viewer-table-wrap';
+                table.parentNode.insertBefore(wrap, table);
+                wrap.appendChild(table);
+            });
+        }
+
+        let tocItems = [];
+        function setupScrollTracking() {
+            const onScroll = () => {
+                const scrollable = docViewerMain;
+                const scrollTop = scrollable.scrollTop;
+                const max = scrollable.scrollHeight - scrollable.clientHeight;
+                const pct = max > 0 ? Math.min(100, (scrollTop / max) * 100) : 0;
+                docViewerProgress.style.width = pct + '%';
+
+                if (!tocItems.length) return;
+                let activeIdx = 0;
+                const offset = scrollTop + 80;
+                for (let i = 0; i < tocItems.length; i++) {
+                    if (tocItems[i].el.offsetTop <= offset) activeIdx = i;
+                    else break;
+                }
+                tocItems.forEach((item, i) => item.link.classList.toggle('active', i === activeIdx));
+            };
+            docViewerMain.removeEventListener('scroll', docViewerMain._scrollHandler || (() => {}));
+            docViewerMain._scrollHandler = onScroll;
+            docViewerMain.addEventListener('scroll', onScroll, { passive: true });
+            onScroll();
+        }
+
+        async function openDoc(path) {
+            docViewerPath.textContent = path;
+            docViewerContent.innerHTML = '<div class="doc-viewer-loading">Loading…</div>';
+            docViewerTocList.innerHTML = '';
+            docViewerProgress.style.width = '0%';
+            docViewer.classList.add('active');
+            stepModal.classList.add('viewing-doc');
+            document.body.classList.add('doc-viewer-open');
+
+            try {
+                const res = await fetch(path);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const md = await res.text();
+                const html = marked.parse(md);
+                docViewerContent.innerHTML = html;
+
+                // Convert mermaid code blocks to mermaid divs
+                docViewerContent.querySelectorAll('pre code').forEach(block => {
+                    const langMatch = (block.className || '').match(/language-(\w+)/);
+                    if (langMatch && langMatch[1] === 'mermaid') {
+                        const pre = block.parentElement;
+                        const div = document.createElement('div');
+                        div.className = 'mermaid';
+                        div.textContent = block.textContent;
+                        pre.replaceWith(div);
+                    }
+                });
+
+                wrapTables();
+                enhanceCodeBlocks();
+                tocItems = buildTOC();
+                setupScrollTracking();
+
+                if (window.mermaid) {
+                    try { await mermaid.run({ nodes: docViewerContent.querySelectorAll('.mermaid') }); } catch (e) {}
+                }
+                docViewerMain.scrollTop = 0;
+            } catch (err) {
+                const isFile = location.protocol === 'file:';
+                const hint = isFile
+                    ? `<p style="margin-top: 16px;">ブラウザは<code>file://</code>経由でのローカルファイル取得をブロックいたします。ローカルHTTPサーバー経由でアクセスしてください：</p>
+                       <pre style="background: #0a0e1a; padding: 12px; border-radius: 6px; margin-top: 8px;"><code>python3 -m http.server 8000</code></pre>
+                       <p style="margin-top: 12px;"><code>http://localhost:8000/development-cycle-jp.html</code>を開いてください</p>`
+                    : `<p style="margin-top: 16px; color: var(--text-secondary);">ファイルが未公開、またはサーバー上にパスが存在しません。</p>`;
+                docViewerContent.innerHTML = `
+                    <div class="doc-viewer-error">
+                        <h3 style="color: var(--accent-amber); margin-bottom: 12px;">⚠ ドキュメントを読み込めません</h3>
+                        <p><strong>パス:</strong> <code>${escapeHtml(path)}</code></p>
+                        <p><strong>エラー:</strong> ${escapeHtml(err.message)}</p>
+                        ${hint}
+                    </div>`;
+                tocItems = [];
+                docViewerTocList.innerHTML = '<li class="doc-viewer-toc-empty">ドキュメント未読込</li>';
+            }
+        }
+
+        function closeDoc() {
+            docViewer.classList.remove('active');
+            stepModal.classList.remove('viewing-doc');
+            document.body.classList.remove('doc-viewer-open');
+            docViewerToc.classList.remove('open');
+            docViewerContent.innerHTML = '';
+            docViewerTocList.innerHTML = '';
+            docViewerProgress.style.width = '0%';
+            tocItems = [];
+        }
+
+        docViewerBack.addEventListener('click', closeDoc);
+        docViewerToggleToc.addEventListener('click', () => docViewerToc.classList.toggle('open'));
+
+        function iconFor(type) {
+            const map = { doc: 'DOC', code: '{ }', test: 'TST', design: 'UI', deploy: '↗', review: 'AUD', user: 'USR' };
+            return map[type] || '•';
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        document.querySelectorAll('.detail-card[data-step]').forEach(card => {
+            const pipeline = card.dataset.pipeline || 'greenfield';
+            card.addEventListener('click', () => openModal(card.dataset.step, pipeline));
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('role', 'button');
+            card.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openModal(card.dataset.step, pipeline);
+                }
+            });
+        });
+
+        modalClose.addEventListener('click', closeModal);
+        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+        });
+    </script>
+
+
+<div class="mermaidTooltip" style="opacity: 0; position: absolute; text-align: center; max-width: 200px; padding: 2px; font-size: 12px; background: rgb(255, 255, 222); border: 1px solid rgb(51, 51, 51); border-radius: 2px; pointer-events: none; z-index: 100;"></div><div style="color-scheme: unset; forced-color-adjust: unset; math-depth: unset; position: absolute; position-anchor: unset; text-size-adjust: unset; appearance: unset; color: unset; font: unset; font-palette: unset; font-synthesis: unset; position-area: unset; text-orientation: unset; text-rendering: unset; text-spacing-trim: unset; -webkit-font-smoothing: unset; -webkit-locale: unset; -webkit-text-orientation: unset; -webkit-writing-mode: unset; writing-mode: unset; zoom: unset; accent-color: unset; place-content: unset; place-items: unset; place-self: unset; alignment-baseline: unset; anchor-name: unset; anchor-scope: unset; animation-composition: unset; animation: unset; animation-trigger: unset; app-region: unset; aspect-ratio: unset; backdrop-filter: unset; backface-visibility: unset; background: unset; background-blend-mode: unset; baseline-shift: unset; baseline-source: unset; block-size: unset; border-block: unset; border: unset; border-radius: unset; border-collapse: unset; border-end-end-radius: unset; border-end-start-radius: unset; border-inline: unset; border-start-end-radius: unset; border-start-start-radius: unset; bottom: unset; box-decoration-break: unset; box-shadow: unset; box-sizing: unset; break-after: unset; break-before: unset; break-inside: unset; buffered-rendering: unset; caption-side: unset; caret-animation: unset; caret-color: unset; caret-shape: unset; clear: unset; clip: unset; clip-path: unset; clip-rule: unset; color-interpolation: unset; color-interpolation-filters: unset; color-rendering: unset; columns: unset; column-fill: unset; gap: unset; column-rule: unset; column-span: unset; contain: unset; contain-intrinsic-block-size: unset; contain-intrinsic-size: unset; contain-intrinsic-inline-size: unset; container: unset; content: unset; content-visibility: unset; corner-shape: unset; corner-block-end-shape: unset; corner-block-start-shape: unset; counter-increment: unset; counter-reset: unset; counter-set: unset; cursor: unset; cx: unset; cy: unset; d: unset; display: unset; dominant-baseline: unset; dynamic-range-limit: unset; empty-cells: unset; field-sizing: unset; fill: unset; fill-opacity: unset; fill-rule: unset; filter: unset; flex: unset; flex-flow: unset; float: unset; flood-color: unset; flood-opacity: unset; grid: unset; grid-area: unset; height: unset; hyphenate-character: unset; hyphenate-limit-chars: unset; hyphens: unset; image-orientation: unset; image-rendering: unset; initial-letter: unset; inline-size: unset; inset-block: unset; inset-inline: unset; interactivity: unset; interest-delay: unset; interpolate-size: unset; isolation: unset; left: 0px; letter-spacing: unset; lighting-color: unset; line-break: unset; list-style: unset; margin-block: unset; margin: unset; margin-inline: unset; marker: unset; mask: unset; mask-type: unset; math-shift: unset; math-style: unset; max-block-size: unset; max-height: unset; max-inline-size: unset; max-width: unset; min-block-size: unset; min-height: unset; min-inline-size: unset; min-width: unset; mix-blend-mode: unset; object-fit: unset; object-position: unset; object-view-box: unset; offset: unset; opacity: unset; order: unset; orphans: unset; outline: unset; outline-offset: unset; overflow-anchor: unset; overflow-block: unset; overflow-clip-margin: unset; overflow-inline: unset; overflow-wrap: unset; overflow: unset; overlay: unset; overscroll-behavior-block: unset; overscroll-behavior-inline: unset; overscroll-behavior: unset; padding-block: unset; padding: unset; padding-inline: unset; page: unset; page-orientation: unset; paint-order: unset; perspective: unset; perspective-origin: unset; pointer-events: unset; position-try: unset; position-visibility: unset; print-color-adjust: unset; quotes: unset; r: unset; reading-flow: unset; reading-order: unset; resize: unset; right: unset; rotate: unset; ruby-align: unset; ruby-position: unset; rx: unset; ry: unset; scale: unset; scroll-behavior: unset; scroll-initial-target: unset; scroll-margin-block: unset; scroll-margin: unset; scroll-margin-inline: unset; scroll-marker-group: unset; scroll-padding-block: unset; scroll-padding: unset; scroll-padding-inline: unset; scroll-snap-align: unset; scroll-snap-stop: unset; scroll-snap-type: unset; scroll-target-group: unset; scroll-timeline: unset; scrollbar-color: unset; scrollbar-gutter: unset; scrollbar-width: unset; shape-image-threshold: unset; shape-margin: unset; shape-outside: unset; shape-rendering: unset; size: unset; speak: unset; stop-color: unset; stop-opacity: unset; stroke: unset; stroke-dasharray: unset; stroke-dashoffset: unset; stroke-linecap: unset; stroke-linejoin: unset; stroke-miterlimit: unset; stroke-opacity: unset; stroke-width: unset; tab-size: unset; table-layout: unset; text-align: unset; text-align-last: unset; text-anchor: unset; text-autospace: unset; text-box: unset; text-combine-upright: unset; text-decoration: unset; text-decoration-skip-ink: unset; text-emphasis: unset; text-emphasis-position: unset; text-indent: unset; text-justify: unset; text-overflow: unset; text-shadow: unset; text-transform: unset; text-underline-offset: unset; text-underline-position: unset; text-wrap: unset; timeline-scope: unset; timeline-trigger: unset; top: 0px; touch-action: unset; transform: unset; transform-box: unset; transform-origin: unset; transform-style: unset; transition: unset; translate: unset; trigger-scope: unset; user-select: unset; vector-effect: unset; vertical-align: unset; view-timeline: unset; view-transition-class: unset; view-transition-group: unset; view-transition-name: unset; visibility: unset; border-spacing: unset; -webkit-box-align: unset; -webkit-box-decoration-break: unset; -webkit-box-direction: unset; -webkit-box-flex: unset; -webkit-box-ordinal-group: unset; -webkit-box-orient: unset; -webkit-box-pack: unset; -webkit-box-reflect: unset; -webkit-line-break: unset; -webkit-line-clamp: unset; -webkit-mask-box-image: unset; -webkit-rtl-ordering: unset; -webkit-ruby-position: unset; -webkit-tap-highlight-color: unset; -webkit-text-combine: unset; -webkit-text-decorations-in-effect: unset; -webkit-text-fill-color: unset; -webkit-text-security: unset; -webkit-text-stroke: unset; -webkit-user-drag: unset; white-space-collapse: unset; widows: unset; width: unset; will-change: unset; word-break: unset; word-spacing: unset; x: unset; y: unset; z-index: unset;"><div style="color-scheme: unset; forced-color-adjust: unset; math-depth: unset; position: absolute; position-anchor: unset; text-size-adjust: unset; appearance: unset; color: unset; font: unset; font-palette: unset; font-synthesis: unset; position-area: unset; text-orientation: unset; text-rendering: unset; text-spacing-trim: unset; -webkit-font-smoothing: unset; -webkit-locale: unset; -webkit-text-orientation: unset; -webkit-writing-mode: unset; writing-mode: unset; zoom: unset; accent-color: unset; place-content: unset; place-items: unset; place-self: unset; alignment-baseline: unset; anchor-name: unset; anchor-scope: unset; animation-composition: unset; animation: unset; animation-trigger: unset; app-region: unset; aspect-ratio: unset; backdrop-filter: unset; backface-visibility: unset; background: unset; background-blend-mode: unset; baseline-shift: unset; baseline-source: unset; block-size: unset; border-block: unset; border: unset; border-radius: unset; border-collapse: unset; border-end-end-radius: unset; border-end-start-radius: unset; border-inline: unset; border-start-end-radius: unset; border-start-start-radius: unset; bottom: unset; box-decoration-break: unset; box-shadow: unset; box-sizing: unset; break-after: unset; break-before: unset; break-inside: unset; buffered-rendering: unset; caption-side: unset; caret-animation: unset; caret-color: unset; caret-shape: unset; clear: unset; clip: unset; clip-path: unset; clip-rule: unset; color-interpolation: unset; color-interpolation-filters: unset; color-rendering: unset; columns: unset; column-fill: unset; gap: unset; column-rule: unset; column-span: unset; contain: unset; contain-intrinsic-block-size: unset; contain-intrinsic-size: unset; contain-intrinsic-inline-size: unset; container: unset; content: unset; content-visibility: unset; corner-shape: unset; corner-block-end-shape: unset; corner-block-start-shape: unset; counter-increment: unset; counter-reset: unset; counter-set: unset; cursor: unset; cx: unset; cy: unset; d: unset; display: unset; dominant-baseline: unset; dynamic-range-limit: unset; empty-cells: unset; field-sizing: unset; fill: unset; fill-opacity: unset; fill-rule: unset; filter: unset; flex: unset; flex-flow: unset; float: unset; flood-color: unset; flood-opacity: unset; grid: unset; grid-area: unset; height: unset; hyphenate-character: unset; hyphenate-limit-chars: unset; hyphens: unset; image-orientation: unset; image-rendering: unset; initial-letter: unset; inline-size: unset; inset-block: unset; inset-inline: unset; interactivity: unset; interest-delay: unset; interpolate-size: unset; isolation: unset; left: 0px; letter-spacing: unset; lighting-color: unset; line-break: unset; list-style: unset; margin-block: unset; margin: unset; margin-inline: unset; marker: unset; mask: unset; mask-type: unset; math-shift: unset; math-style: unset; max-block-size: unset; max-height: unset; max-inline-size: unset; max-width: unset; min-block-size: unset; min-height: unset; min-inline-size: unset; min-width: unset; mix-blend-mode: unset; object-fit: unset; object-position: unset; object-view-box: unset; offset: unset; opacity: unset; order: unset; orphans: unset; outline: unset; outline-offset: unset; overflow-anchor: unset; overflow-block: unset; overflow-clip-margin: unset; overflow-inline: unset; overflow-wrap: unset; overflow: unset; overlay: unset; overscroll-behavior-block: unset; overscroll-behavior-inline: unset; overscroll-behavior: unset; padding-block: unset; padding: unset; padding-inline: unset; page: unset; page-orientation: unset; paint-order: unset; perspective: unset; perspective-origin: unset; pointer-events: unset; position-try: unset; position-visibility: unset; print-color-adjust: unset; quotes: unset; r: unset; reading-flow: unset; reading-order: unset; resize: unset; right: unset; rotate: unset; ruby-align: unset; ruby-position: unset; rx: unset; ry: unset; scale: unset; scroll-behavior: unset; scroll-initial-target: unset; scroll-margin-block: unset; scroll-margin: unset; scroll-margin-inline: unset; scroll-marker-group: unset; scroll-padding-block: unset; scroll-padding: unset; scroll-padding-inline: unset; scroll-snap-align: unset; scroll-snap-stop: unset; scroll-snap-type: unset; scroll-target-group: unset; scroll-timeline: unset; scrollbar-color: unset; scrollbar-gutter: unset; scrollbar-width: unset; shape-image-threshold: unset; shape-margin: unset; shape-outside: unset; shape-rendering: unset; size: unset; speak: unset; stop-color: unset; stop-opacity: unset; stroke: unset; stroke-dasharray: unset; stroke-dashoffset: unset; stroke-linecap: unset; stroke-linejoin: unset; stroke-miterlimit: unset; stroke-opacity: unset; stroke-width: unset; tab-size: unset; table-layout: unset; text-align: unset; text-align-last: unset; text-anchor: unset; text-autospace: unset; text-box: unset; text-combine-upright: unset; text-decoration: unset; text-decoration-skip-ink: unset; text-emphasis: unset; text-emphasis-position: unset; text-indent: unset; text-justify: unset; text-overflow: unset; text-shadow: unset; text-transform: unset; text-underline-offset: unset; text-underline-position: unset; text-wrap: unset; timeline-scope: unset; timeline-trigger: unset; top: 0px; touch-action: unset; transform: unset; transform-box: unset; transform-origin: unset; transform-style: unset; transition: unset; translate: unset; trigger-scope: unset; user-select: unset; vector-effect: unset; vertical-align: unset; view-timeline: unset; view-transition-class: unset; view-transition-group: unset; view-transition-name: unset; visibility: unset; border-spacing: unset; -webkit-box-align: unset; -webkit-box-decoration-break: unset; -webkit-box-direction: unset; -webkit-box-flex: unset; -webkit-box-ordinal-group: unset; -webkit-box-orient: unset; -webkit-box-pack: unset; -webkit-box-reflect: unset; -webkit-line-break: unset; -webkit-line-clamp: unset; -webkit-mask-box-image: unset; -webkit-rtl-ordering: unset; -webkit-ruby-position: unset; -webkit-tap-highlight-color: unset; -webkit-text-combine: unset; -webkit-text-decorations-in-effect: unset; -webkit-text-fill-color: unset; -webkit-text-security: unset; -webkit-text-stroke: unset; -webkit-user-drag: unset; white-space-collapse: unset; widows: unset; width: unset; will-change: unset; word-break: unset; word-spacing: unset; x: unset; y: unset; z-index: unset;"><template shadowrootmode="closed"><link rel="stylesheet" href="chrome-extension://gbefmodhlophhakmoecijeppjblibmie/contentscript.css"></template></div></div></body></html>
